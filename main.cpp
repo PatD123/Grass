@@ -66,6 +66,35 @@ int main()
     // Capture cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    glm::vec3 yaxis = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    // Let's start our grass.
+    glm::vec3 bladePos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 bladeDir = glm::vec3(1.0f, 0.0f, 0.0f);
+    float bladeHeight = 0.5f;
+    float bladeLean = 0.3;
+    float bladeP0Width = 0.2;
+    float bladeP1Width = 0.175;
+    float bladeP2Width = 0.12;
+
+    // A single blade of grass is a bezier curve, out of 3 points.
+    glm::vec3 p0 = bladePos;
+    glm::vec3 p1 = bladePos + glm::vec3(0.0f, bladeHeight, 0.0f);
+    glm::vec3 p2 = p1 + bladeDir * bladeLean; // Think about bladeHeight here --> Taller blades, bend more
+
+    // Calculate and apply width vectors
+    glm::vec3 bladeWidthDir = glm::cross(yaxis, bladeDir);
+    glm::vec3 p0_neg = bladePos - bladeWidthDir;
+    glm::vec3 p0_pos = bladePos + bladeWidthDir;
+    glm::vec3 p1_neg = bladePos - bladeWidthDir;
+    glm::vec3 p1_pos = bladePos + bladeWidthDir;
+    glm::vec3 p2_neg = bladePos - bladeWidthDir;
+    glm::vec3 p2_pos = bladePos + bladeWidthDir;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     GLuint VBO, VAO;
     glGenBuffers(1, &VBO);
     glGenVertexArrays(1, &VAO);
