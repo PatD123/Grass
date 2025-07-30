@@ -93,6 +93,11 @@ int main()
     glm::vec3 p2_neg = bladePos - bladeWidthDir;
     glm::vec3 p2_pos = bladePos + bladeWidthDir;
 
+    // We want 4 vertices per bezier --> 8 in total
+    // Left side = bezier(t) for t 0..4
+    // Right side = bezier(t) for t 0..4
+    // Make sure winding order is right ==> Should have 6 triangles.
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     GLuint VBO, VAO;
@@ -193,4 +198,10 @@ void mouseCallback(GLFWwindow* window, double dXPos, double dYPos)
 
     lastX = xpos;
     lastY = ypos;
+}
+
+glm::vec3 bezier(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, float t) {
+    glm::vec3 a = glm::mix(p0, p1, t);
+    glm::vec3 b = glm::mix(p1, p2, t);
+    return glm::mix(a, b, t);
 }
