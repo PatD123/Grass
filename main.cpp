@@ -82,9 +82,9 @@ int main()
     glm::vec3 bladeDir = glm::vec3(1.0f, 0.0f, 0.0f);
     float bladeHeight = 0.5f;
     float bladeLean = 0.3;
-    float bladeP0Width = 0.2;
-    float bladeP1Width = 0.175;
-    float bladeP2Width = 0.12;
+    float bladeP0Width = 0.08;
+    float bladeP1Width = 0.05;
+    float bladeP2Width = 0.025;
 
     // A single blade of grass is a bezier curve, out of 3 points.
     glm::vec3 p0 = bladePos;
@@ -93,15 +93,12 @@ int main()
 
     // Calculate and apply width vectors
     glm::vec3 bladeSideDir = glm::normalize(glm::cross(YAXIS, bladeDir));
-    glm::vec3 p0_neg = p0 - bladeSideDir;
-    //printVector(p0_neg);
-    glm::vec3 p0_pos = p0 + bladeSideDir;
-    glm::vec3 p1_neg = p1 - bladeSideDir;
-    //printVector(p1_neg);
-    glm::vec3 p1_pos = p1 + bladeSideDir;
-    glm::vec3 p2_neg = p2 - bladeSideDir;
-    //printVector(p2_neg);
-    glm::vec3 p2_pos = p2 + bladeSideDir;
+    glm::vec3 p0_neg = p0 - bladeSideDir * bladeP0Width;
+    glm::vec3 p0_pos = p0 + bladeSideDir * bladeP0Width;
+    glm::vec3 p1_neg = p1 - bladeSideDir * bladeP1Width;
+    glm::vec3 p1_pos = p1 + bladeSideDir * bladeP1Width;
+    glm::vec3 p2_neg = p2 - bladeSideDir * bladeP2Width;
+    glm::vec3 p2_pos = p2 + bladeSideDir * bladeP1Width;
 
     // We want 4 vertices per bezier --> 8 in total
     // Left side = bezier(t) for t 0..4
