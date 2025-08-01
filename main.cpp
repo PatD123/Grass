@@ -76,45 +76,32 @@ int main()
     glm::vec3 grassPatchPos = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 Normal = YAXIS;
     float grassPatchMaxHeight = 0.5f;
-    float grassPatchRadius = 0.2f;
+    float grassPatchRadius = 0.5f;
 
     /*Grass g;
     g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);*/
 
     std::vector<Grass> world;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 10; i++) {
         Grass g;
         g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);
         world.push_back(g);
     }
 
     std::vector<glm::vec3> vertices; // Reserve space so no reallocations?
-    std::vector<glm::mat4> trnsfms;
     for (Grass g : world) {
         for (glm::vec3 v : g.m_vertices)
             vertices.push_back(v);
-        trnsfms.push_back(g.m_transform);
     }
 
-    GLuint vertVBO, trnsfmVBO, VAO;
-    glGenBuffers(1, &vertVBO);
-    glGenBuffers(1, &trnsfmVBO);
+    GLuint VBO, VAO;
+    glGenBuffers(1, &VBO);
     glGenVertexArrays(1, &VAO);
 
     glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glEnableVertexAttribArray(0);       // aPos
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, trnsfmVBO);
-    glBufferData(GL_ARRAY_BUFFER, trnsfms.size() * sizeof(glm::mat4), trnsfms.data(), GL_STATIC_DRAW);
-    for (int i = 0; i < 4; i++) {
-        glEnableVertexAttribArray(1 + i);       // aTransform
-        glVertexAttribPointer(1 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(i * sizeof(glm::vec4)));
-        glVertexAttribDivisor(1 + i, 1);
-    }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -161,19 +148,25 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float near_plane = 1.0f, far_plane = 600.0f;
+        float near_plane = 0.1f, far_plane = 600.0f;
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = cam.getViewMat();
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, near_plane, far_plane);
         glm::mat4 proj_view = proj * view;
 
-        sh.setUniformMat4fv(shaderProgram, "model", glm::value_ptr(model));
-        sh.setUniformMat4fv(shaderProgram, "proj_view", glm::value_ptr(proj_view));
+        for (Grass g : world)
+        {
+            glm::mat4 transform = proj_view * g.m_transform * model;
+            sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
 
-        // Draw
-        sh.useShaderProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 18, world.size());
+            // Draw
+            sh.useShaderProgram(shaderProgram);
+            glBindVertexArray(VAO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, g.m_vertices.size() * sizeof(glm::vec3), g.m_vertices.data(), GL_STATIC_DRAW);
+            glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
+        }
+        
 
         glfwSwapBuffers(window);
         glfwPollEvents();

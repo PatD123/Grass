@@ -1,16 +1,4 @@
-#include <iostream>
-#include <stdlib.h>
-#include <random>
-#include <cmath>
-#include <chrono>
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "Grass.h";
-#include "../common/utils.hpp"
 
 Grass::Grass(glm::vec3 localPos) : m_localPos(localPos) {}
 
@@ -20,8 +8,7 @@ void Grass::generateBlade(
 	float grassPatchMaxHeight,
 	float grassPatchRadius
 ) {
-	unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
-	std::mt19937 generator(seed);
+	std::mt19937 generator(getSeed());
 
 	// Randomly pick theta to rotate around patch center.
 	std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -36,10 +23,11 @@ void Grass::generateBlade(
 	glm::vec3 bladeWorldPosition = mag * glm::vec3(glm::cos(alpha), 0.0, glm::sin(alpha)) + grassPatchPos;
 	m_transform = glm::translate(glm::mat4(), bladeWorldPosition);
 
-	//printMatrix(m_transform);
-
 	// Some random values for our grass at the moment.
-	glm::vec3 bladeDir = glm::vec3(0.0f, 0.0f, -1.0f);
+	dis = std::uniform_real_distribution<>(-1.0, 1.0);
+	glm::vec3 bladeDir = glm::vec3(dis(generator), dis(generator), dis(generator));
+
+	dis = std::uniform_real_distribution<>(0.0, grassPatchMaxHeight);
 	float bladeHeight = 0.5f;
 	float bladeLean = 0.3;
 	float bladeP0Width = 0.08;

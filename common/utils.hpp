@@ -1,7 +1,10 @@
+#pragma once
+
 #include <iostream>
 #include <stdlib.h>
 #include <random>
 #include <cmath>
+#include <chrono>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -30,4 +33,8 @@ static void printMatrix(const glm::mat4& m) {
         }
         std::cout << std::endl;
     }
+}
+
+static unsigned getSeed() {
+    return static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
 }

@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../common/utils.hpp"
+
 // CONSTS
 const static glm::vec3 YAXIS = glm::vec3(0.0, 1.0, 0.0);
 const static int NUM_BEZIER_VERTS = 4; // Vertices per side of bezier.
