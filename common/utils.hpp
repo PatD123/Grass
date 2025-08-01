@@ -22,3 +22,12 @@ static glm::vec3 bezierDerivative(const glm::vec3& p0, const glm::vec3& p1, cons
 static void printVector(const glm::vec3& v) {
     std::cout << v[0] << " " << v[1] << " " << v[2] << std::endl;
 }
+
+static void printMatrix(const glm::mat4& m) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            std::cout << m[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}

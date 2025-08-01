@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <random>
 #include <cmath>
+#include <chrono>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -11,7 +12,7 @@
 #include "Grass.h";
 #include "../common/utils.hpp"
 
-Grass::Grass() {}
+Grass::Grass(glm::vec3 localPos) : m_localPos(localPos) {}
 
 void Grass::generateBlade(
 	glm::vec3 grassPatchPos,
@@ -19,7 +20,8 @@ void Grass::generateBlade(
 	float grassPatchMaxHeight,
 	float grassPatchRadius
 ) {
-	std::mt19937 generator(2025);
+	unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
+	std::mt19937 generator(seed);
 
 	// Randomly pick theta to rotate around patch center.
 	std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -31,7 +33,10 @@ void Grass::generateBlade(
 	float mag = dis(generator);
 
 	// Get new grass pos;
-	m_position = mag * glm::vec3(glm::cos(alpha), 0.0, glm::sin(alpha));
+	glm::vec3 bladeWorldPosition = mag * glm::vec3(glm::cos(alpha), 0.0, glm::sin(alpha)) + grassPatchPos;
+	m_transform = glm::translate(glm::mat4(), bladeWorldPosition);
+
+	//printMatrix(m_transform);
 
 	// Some random values for our grass at the moment.
 	glm::vec3 bladeDir = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -42,8 +47,8 @@ void Grass::generateBlade(
 	float bladeP2Width = 0.025;
 
 	// A single blade of grass is a bezier curve, out of 3 points.
-	glm::vec3 p0 = m_position;
-	glm::vec3 p1 = m_position + glm::vec3(0.0f, bladeHeight, 0.0f);
+	glm::vec3 p0 = m_localPos;
+	glm::vec3 p1 = m_localPos + glm::vec3(0.0f, bladeHeight, 0.0f);
 	glm::vec3 p2 = p1 + bladeDir * bladeLean; // Think about bladeHeight here --> Taller blades, bend more
 
 	// Calculate and apply width vectors
@@ -77,6 +82,6 @@ void Grass::generateBlade(
 		m_vertices.push_back(negBezier[i + 1]);
 		m_vertices.push_back(posBezier[i + 1]);
 
-		std::cout << m_vertices.size() << std::endl;
+		//std::cout << m_vertices.size() << std::endl;
 	}
 }

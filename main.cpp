@@ -73,45 +73,53 @@ int main()
     // Let's start our grass.
     
     // Grass patch
-    glm::vec3 grassPatchPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    glm::vec3 grassPatchPos = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 Normal = YAXIS;
     float grassPatchMaxHeight = 0.5f;
-    float grassPatchRadius = 3.0f;
+    float grassPatchRadius = 0.2f;
 
-    Grass g;
-    g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);
+    /*Grass g;
+    g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);*/
 
-    GLuint VBO, VAO;
-    glGenBuffers(1, &VBO);
+    std::vector<Grass> world;
+    for (int i = 0; i < 5; i++) {
+        Grass g;
+        g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);
+        world.push_back(g);
+    }
+
+    std::vector<glm::vec3> vertices; // Reserve space so no reallocations?
+    std::vector<glm::mat4> trnsfms;
+    for (Grass g : world) {
+        for (glm::vec3 v : g.m_vertices)
+            vertices.push_back(v);
+        trnsfms.push_back(g.m_transform);
+    }
+
+    GLuint vertVBO, trnsfmVBO, VAO;
+    glGenBuffers(1, &vertVBO);
+    glGenBuffers(1, &trnsfmVBO);
     glGenVertexArrays(1, &VAO);
 
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, g.m_vertices.size() * sizeof(glm::vec3), g.m_vertices.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);       // aPos
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, trnsfmVBO);
+    glBufferData(GL_ARRAY_BUFFER, trnsfms.size() * sizeof(glm::mat4), trnsfms.data(), GL_STATIC_DRAW);
+    for (int i = 0; i < 4; i++) {
+        glEnableVertexAttribArray(1 + i);       // aTransform
+        glVertexAttribPointer(1 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(i * sizeof(glm::vec4)));
+        glVertexAttribDivisor(1 + i, 1);
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //GLuint VBO, VAO;
-    //glGenBuffers(1, &VBO);
-    //glGenVertexArrays(1, &VAO);
-
-    //glBindVertexArray(VAO);
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::vertices), Cube::vertices, GL_STATIC_DRAW);
-    //glEnableVertexAttribArray(0);
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GL_FLOAT), (void*)0);
-    //glEnableVertexAttribArray(1);               // aNormal
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT)));
-
-    //glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //glBindVertexArray(0);
 
     // FPS metrics
     double prevTime = 0.0;
@@ -165,7 +173,7 @@ int main()
         // Draw
         sh.useShaderProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 18, world.size());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
