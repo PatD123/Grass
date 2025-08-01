@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
+#include <random>
 #include <cmath>
 
 #include <glad/glad.h>
@@ -9,8 +10,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "common/ShaderHelper.h"
+#include "common/utils.hpp"
 #include "camera/Camera.h"
 #include "shapes/Cube.h"
+#include "shapes/Grass.h"
 
 // Timing
 float PROGRAM_START_TIME = glfwGetTime();
@@ -19,12 +22,6 @@ float lastFrame = 0.0f; // Time of last frame
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
-
-glm::vec3 bezier(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, float t);
-glm::vec3 bezierDerivative(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, float t);
-
-void printVector(const glm::vec3& v);
-
 void processInput(GLFWwindow* window);
 
 // Making Camera
@@ -33,10 +30,6 @@ const float radius = 5.0f;
 bool firstMouse = true;
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
-
-// CONSTS
-const glm::vec3 YAXIS = glm::vec3(0.0, 1.0, 0.0);
-const int NUM_BEZIER_VERTS = 4; // Vertices per side of bezier.
 
 int main()
 {
@@ -78,63 +71,15 @@ int main()
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Let's start our grass.
-    glm::vec3 bladePos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 bladeDir = glm::vec3(1.0f, 0.0f, 0.0f);
-    float bladeHeight = 0.5f;
-    float bladeLean = 0.3;
-    float bladeP0Width = 0.08;
-    float bladeP1Width = 0.05;
-    float bladeP2Width = 0.025;
+    
+    // Grass patch
+    glm::vec3 grassPatchPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    glm::vec3 Normal = YAXIS;
+    float grassPatchMaxHeight = 0.5f;
+    float grassPatchRadius = 3.0f;
 
-    // A single blade of grass is a bezier curve, out of 3 points.
-    glm::vec3 p0 = bladePos;
-    glm::vec3 p1 = bladePos + glm::vec3(0.0f, bladeHeight, 0.0f);
-    glm::vec3 p2 = p1 + bladeDir * bladeLean; // Think about bladeHeight here --> Taller blades, bend more
-
-    // Calculate and apply width vectors
-    glm::vec3 bladeSideDir = glm::normalize(glm::cross(YAXIS, bladeDir));
-    glm::vec3 p0_neg = p0 - bladeSideDir * bladeP0Width;
-    glm::vec3 p0_pos = p0 + bladeSideDir * bladeP0Width;
-    glm::vec3 p1_neg = p1 - bladeSideDir * bladeP1Width;
-    glm::vec3 p1_pos = p1 + bladeSideDir * bladeP1Width;
-    glm::vec3 p2_neg = p2 - bladeSideDir * bladeP2Width;
-    glm::vec3 p2_pos = p2 + bladeSideDir * bladeP1Width;
-
-    // We want 4 vertices per bezier --> 8 in total
-    // Left side = bezier(t) for t 0..4
-    // Right side = bezier(t) for t 0..4
-    // Make sure winding order is right ==> Should have 6 triangles.
-
-    float tSeq[NUM_BEZIER_VERTS] = { 0.0f, 1.0f / 3.0, 2.0f / 3.0, 1.0f };
-    glm::vec3 negBezier[NUM_BEZIER_VERTS];
-    glm::vec3 posBezier[NUM_BEZIER_VERTS];
-
-    for (int i = 0; i < NUM_BEZIER_VERTS; i++) {
-        float t = tSeq[i];
-        negBezier[i] = bezier(p0_neg, p1_neg, p2_neg, t);
-        posBezier[i] = bezier(p0_pos, p1_pos, p2_pos, t);
-    }
-
-    /*for (int i = 0; i < NUM_BEZIER_VERTS; i++) {
-        printVector(posBezier[i]);
-    }*/
-
-    std::vector<glm::vec3> vertices;
-
-    // CCW order
-    for (int i = 0; i < NUM_BEZIER_VERTS - 1; i++) {
-        // Neg tri
-        vertices.push_back(negBezier[i]);
-        vertices.push_back(posBezier[i]);
-        vertices.push_back(negBezier[i + 1]);
-
-        // Pos tri
-        vertices.push_back(posBezier[i]);
-        vertices.push_back(negBezier[i + 1]);
-        vertices.push_back(posBezier[i + 1]);
-
-        std::cout << vertices.size() << std::endl;
-    }
+    Grass g;
+    g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);
 
     GLuint VBO, VAO;
     glGenBuffers(1, &VBO);
@@ -143,7 +88,7 @@ int main()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, g.m_vertices.size() * sizeof(glm::vec3), g.m_vertices.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
 
@@ -220,7 +165,7 @@ int main()
         // Draw
         sh.useShaderProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+        glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -259,19 +204,4 @@ void mouseCallback(GLFWwindow* window, double dXPos, double dYPos)
 
     lastX = xpos;
     lastY = ypos;
-}
-
-glm::vec3 bezier(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, float t) {
-    glm::vec3 a = glm::mix(p0, p1, t);
-    glm::vec3 b = glm::mix(p1, p2, t);
-    return glm::mix(a, b, t);
-}
-
-glm::vec3 bezierDerivative(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, float t)
-{
-    return 2.0f * (1.0f - t) * (p1 - p0) + 2.0f * t * (p2 - p1);
-}
-
-void printVector(const glm::vec3& v) {
-    std::cout << v[0] << " " << v[1] << " " << v[2] << std::endl;
 }
