@@ -1,5 +1,7 @@
 #include "Grass.h";
 
+static std::mt19937 GENERATOR(getSeed());
+
 Grass::Grass(glm::vec3 localPos) : m_localPos(localPos) {}
 
 void Grass::generateBlade(
@@ -12,12 +14,12 @@ void Grass::generateBlade(
 
 	// Randomly pick theta to rotate around patch center.
 	std::uniform_real_distribution<> dis(0.0, 1.0);
-	float alpha = 2.0 * std::_Pi_val * dis(generator);
+	float alpha = 2.0 * std::_Pi_val * dis(GENERATOR);
 
 	// Randomly pick magnitude to scale the directional vector of our 
 	// offsetted patch.
 	dis = std::uniform_real_distribution<>(0.0, grassPatchRadius);
-	float mag = dis(generator);
+	float mag = dis(GENERATOR);
 
 	// Get new grass pos;
 	glm::vec3 bladeWorldPosition = mag * glm::vec3(glm::cos(alpha), 0.0, glm::sin(alpha)) + grassPatchPos;
@@ -25,11 +27,11 @@ void Grass::generateBlade(
 
 	// Some random values for our grass at the moment.
 	dis = std::uniform_real_distribution<>(-1.0, 1.0);
-	glm::vec3 bladeDir = glm::vec3(dis(generator), dis(generator), dis(generator));
+	glm::vec3 bladeDir = glm::vec3(dis(GENERATOR), dis(GENERATOR), dis(GENERATOR));
 
 	dis = std::uniform_real_distribution<>(0.0, grassPatchMaxHeight);
 	float bladeHeight = 0.5f;
-	float bladeLean = 0.3;
+	float bladeLean = 0.2f;
 	float bladeP0Width = 0.08;
 	float bladeP1Width = 0.05;
 	float bladeP2Width = 0.025;
@@ -49,8 +51,8 @@ void Grass::generateBlade(
 	glm::vec3 p2_pos = p2 + bladeSideDir * bladeP1Width;
 
 	float tSeq[NUM_BEZIER_VERTS] = { 0.0f, 1.0f / 3.0, 2.0f / 3.0, 1.0f };
-	glm::vec3 negBezier[NUM_BEZIER_VERTS];
-	glm::vec3 posBezier[NUM_BEZIER_VERTS];
+	std::pair<glm::vec3, glm::vec3> negBezier[NUM_BEZIER_VERTS];
+	std::pair<glm::vec3, glm::vec3> posBezier[NUM_BEZIER_VERTS];
 
 	for (int i = 0; i < NUM_BEZIER_VERTS; i++) {
 		float t = tSeq[i];
@@ -61,14 +63,20 @@ void Grass::generateBlade(
 	// CCW order
 	for (int i = 0; i < NUM_BEZIER_VERTS - 1; i++) {
 		// Neg tri
-		m_vertices.push_back(negBezier[i]);
-		m_vertices.push_back(posBezier[i]);
-		m_vertices.push_back(negBezier[i + 1]);
+		m_vertices.push_back(negBezier[i].first);
+		m_normals.push_back(negBezier[i].second);
+		m_vertices.push_back(posBezier[i].first);
+		m_normals.push_back(posBezier[i].second);
+		m_vertices.push_back(negBezier[i + 1].first);
+		m_normals.push_back(negBezier[i + 1].second);
 
 		// Pos tri
-		m_vertices.push_back(posBezier[i]);
-		m_vertices.push_back(negBezier[i + 1]);
-		m_vertices.push_back(posBezier[i + 1]);
+		m_vertices.push_back(posBezier[i].first);
+		m_normals.push_back(posBezier[i].second);
+		m_vertices.push_back(negBezier[i + 1].first);
+		m_normals.push_back(negBezier[i + 1].second);
+		m_vertices.push_back(posBezier[i + 1].first);
+		m_normals.push_back(posBezier[i + 1].second);
 
 		//std::cout << m_vertices.size() << std::endl;
 	}

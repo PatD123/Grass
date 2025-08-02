@@ -94,14 +94,18 @@ int main()
             vertices.push_back(v);
     }
 
-    GLuint VBO, VAO;
-    glGenBuffers(1, &VBO);
+    GLuint vertVBO, normVBO, VAO;
+    glGenBuffers(1, &vertVBO);
+    glGenBuffers(1, &normVBO);
     glGenVertexArrays(1, &VAO);
 
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
     glEnableVertexAttribArray(0);       // aPos
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, normVBO);
+    glEnableVertexAttribArray(1);       // aPos
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -162,8 +166,10 @@ int main()
             // Draw
             sh.useShaderProgram(shaderProgram);
             glBindVertexArray(VAO);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
             glBufferData(GL_ARRAY_BUFFER, g.m_vertices.size() * sizeof(glm::vec3), g.m_vertices.data(), GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, normVBO);
+            glBufferData(GL_ARRAY_BUFFER, g.m_normals.size() * sizeof(glm::vec3), g.m_normals.data(), GL_STATIC_DRAW);
             glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
         }
         

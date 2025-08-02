@@ -23,5 +23,6 @@ public:
 	glm::vec3 m_localPos;
 	//glm::vec3 m_vertices[18];
 	std::vector<glm::vec3> m_vertices;
+	std::vector<glm::vec3> m_normals;
 	glm::mat4 m_transform;
 };
