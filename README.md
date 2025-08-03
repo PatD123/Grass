@@ -2,6 +2,12 @@ Grass Simulation in OpenGL
 
 ## The journey
 
+Colorful Gaggle of Grass
+
+<img width="629" height="461" alt="image" src="https://github.com/user-attachments/assets/37e1030d-b306-403f-bc5a-3ea6427ab558" />
+
+
+
 Gaggle of Grass
 
 <img width="579" height="532" alt="image" src="https://github.com/user-attachments/assets/23fc1088-4817-4820-aa6c-014985a6c773" />
