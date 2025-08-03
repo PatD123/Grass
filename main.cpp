@@ -76,13 +76,13 @@ int main()
     glm::vec3 grassPatchPos = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 Normal = YAXIS;
     float grassPatchMaxHeight = 0.5f;
-    float grassPatchRadius = 0.5f;
+    float grassPatchRadius = 2.0f;
 
     /*Grass g;
     g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);*/
 
     std::vector<Grass> world;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1000; i++) {
         Grass g;
         g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);
         world.push_back(g);
