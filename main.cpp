@@ -73,16 +73,16 @@ int main()
     // Let's start our grass.
     
     // Grass patch
-    glm::vec3 grassPatchPos = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 grassPatchPos = glm::vec3(0.0f, 0.0f, 0.5f);
     glm::vec3 Normal = YAXIS;
     float grassPatchMaxHeight = 0.5f;
-    float grassPatchRadius = 2.0f;
+    float grassPatchRadius = 0.1f;
 
     /*Grass g;
     g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);*/
 
     std::vector<Grass> world;
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 1; i++) {
         Grass g;
         g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);
         world.push_back(g);
@@ -104,7 +104,7 @@ int main()
     glEnableVertexAttribArray(0);       // aPos
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
     glBindBuffer(GL_ARRAY_BUFFER, normVBO);
-    glEnableVertexAttribArray(1);       // aPos
+    glEnableVertexAttribArray(1);       // aNormal
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -120,9 +120,6 @@ int main()
 
     // Enable V-sync for v-blanks
     glfwSwapInterval(1);
-
-    // Culling back faces
-    //glEnable(GL_CULL_FACE);
 
     std::cout << "Starting to render" << std::endl;
 
@@ -152,7 +149,7 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float near_plane = 0.1f, far_plane = 600.0f;
+        float near_plane = 0.1f, far_plane = 100.0f;
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = cam.getViewMat();
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, near_plane, far_plane);

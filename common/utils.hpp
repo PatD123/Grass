@@ -13,7 +13,7 @@
 
 static glm::vec3 bezierDerivative(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, float t)
 {
-    return 2.0f * (1.0f - t) * (p1 - p0) + 2.0f * t * (p2 - p1);
+    return glm::normalize(2.0f * (1.0f - t) * (p1 - p0) + 2.0f * t * (p2 - p1));
 }
 
 static std::pair<glm::vec3, glm::vec3> bezier(glm::vec3& p0, glm::vec3& p1, glm::vec3& p2, float t) {

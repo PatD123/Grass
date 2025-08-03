@@ -42,7 +42,9 @@ void Grass::generateBlade(
 	glm::vec3 p2 = p1 + bladeDir * bladeLean; // Think about bladeHeight here --> Taller blades, bend more
 
 	// Calculate and apply width vectors
-	glm::vec3 bladeSideDir = glm::normalize(glm::cross(YAXIS, bladeDir));
+	glm::vec3 bladeSideDir = glm::normalize(glm::cross(bladeDir, YAXIS));
+	std::cout << "SIDEDIR: ";
+	printVector(bladeSideDir);
 	glm::vec3 p0_neg = p0 - bladeSideDir * bladeP0Width;
 	glm::vec3 p0_pos = p0 + bladeSideDir * bladeP0Width;
 	glm::vec3 p1_neg = p1 - bladeSideDir * bladeP1Width;
@@ -57,6 +59,8 @@ void Grass::generateBlade(
 	for (int i = 0; i < NUM_BEZIER_VERTS; i++) {
 		float t = tSeq[i];
 		negBezier[i] = bezier(p0_neg, p1_neg, p2_neg, t);
+		std::cout << "DERIV ";
+		printVector(negBezier[i].second);
 		posBezier[i] = bezier(p0_pos, p1_pos, p2_pos, t);
 	}
 
@@ -64,19 +68,19 @@ void Grass::generateBlade(
 	for (int i = 0; i < NUM_BEZIER_VERTS - 1; i++) {
 		// Neg tri
 		m_vertices.push_back(negBezier[i].first);
-		m_normals.push_back(negBezier[i].second);
+		m_normals.push_back(glm::cross(bladeSideDir, negBezier[i].second));
 		m_vertices.push_back(posBezier[i].first);
-		m_normals.push_back(posBezier[i].second);
+		m_normals.push_back(glm::cross(bladeSideDir, posBezier[i].second));
 		m_vertices.push_back(negBezier[i + 1].first);
-		m_normals.push_back(negBezier[i + 1].second);
+		m_normals.push_back(glm::cross(bladeSideDir, negBezier[i + 1].second));
 
 		// Pos tri
 		m_vertices.push_back(posBezier[i].first);
-		m_normals.push_back(posBezier[i].second);
-		m_vertices.push_back(negBezier[i + 1].first);
-		m_normals.push_back(negBezier[i + 1].second);
+		m_normals.push_back(glm::cross(bladeSideDir, posBezier[i].second));
 		m_vertices.push_back(posBezier[i + 1].first);
-		m_normals.push_back(posBezier[i + 1].second);
+		m_normals.push_back(glm::cross(bladeSideDir, posBezier[i + 1].second));
+		m_vertices.push_back(negBezier[i + 1].first);
+		m_normals.push_back(glm::cross(bladeSideDir, negBezier[i + 1].second));
 
 		//std::cout << m_vertices.size() << std::endl;
 	}
