@@ -7,7 +7,9 @@ Grass::Grass(glm::vec3 localPos) : m_localPos(localPos) {}
 void Grass::generateBlade(
 	glm::vec3 grassPatchPos,
 	glm::vec3 grassPatchNorm,
+	float grassPatchMinHeight,
 	float grassPatchMaxHeight,
+	float grassPatchMaxLean,
 	float grassPatchRadius
 ) {
 	std::mt19937 generator(getSeed());
@@ -28,10 +30,10 @@ void Grass::generateBlade(
 	// Some random values for our grass at the moment.
 	dis = std::uniform_real_distribution<>(-1.0, 1.0);
 	glm::vec3 bladeDir = glm::vec3(dis(GENERATOR), dis(GENERATOR), dis(GENERATOR));
-
-	dis = std::uniform_real_distribution<>(0.0, grassPatchMaxHeight);
-	float bladeHeight = 0.5f;
-	float bladeLean = 0.2f;
+	dis = std::uniform_real_distribution<>(grassPatchMinHeight, grassPatchMaxHeight);
+	float bladeHeight = dis(GENERATOR);
+	dis = std::uniform_real_distribution<>(0.0, grassPatchMaxLean);
+	float bladeLean = dis(GENERATOR);
 	float bladeP0Width = 0.08;
 	float bladeP1Width = 0.05;
 	float bladeP2Width = 0.025;
@@ -43,8 +45,6 @@ void Grass::generateBlade(
 
 	// Calculate and apply width vectors
 	glm::vec3 bladeSideDir = glm::normalize(glm::cross(bladeDir, YAXIS));
-	std::cout << "SIDEDIR: ";
-	printVector(bladeSideDir);
 	glm::vec3 p0_neg = p0 - bladeSideDir * bladeP0Width;
 	glm::vec3 p0_pos = p0 + bladeSideDir * bladeP0Width;
 	glm::vec3 p1_neg = p1 - bladeSideDir * bladeP1Width;
@@ -52,16 +52,16 @@ void Grass::generateBlade(
 	glm::vec3 p2_neg = p2 - bladeSideDir * bladeP2Width;
 	glm::vec3 p2_pos = p2 + bladeSideDir * bladeP1Width;
 
-	float tSeq[NUM_BEZIER_VERTS] = { 0.0f, 1.0f / 3.0, 2.0f / 3.0, 1.0f };
+	float tSeq[NUM_BEZIER_VERTS] = { 0.0f, 1.0f / 4.0, 2.0f / 4.0, 3.0f / 4.0, 1.0f };
 	std::pair<glm::vec3, glm::vec3> negBezier[NUM_BEZIER_VERTS];
 	std::pair<glm::vec3, glm::vec3> posBezier[NUM_BEZIER_VERTS];
 
 	for (int i = 0; i < NUM_BEZIER_VERTS; i++) {
 		float t = tSeq[i];
 		negBezier[i] = bezier(p0_neg, p1_neg, p2_neg, t);
-		std::cout << "DERIV ";
-		printVector(negBezier[i].second);
 		posBezier[i] = bezier(p0_pos, p1_pos, p2_pos, t);
+
+		m_bladeHeight = glm::max(m_bladeHeight, posBezier[i].first[1]);
 	}
 
 	// CCW order

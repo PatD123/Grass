@@ -75,16 +75,18 @@ int main()
     // Grass patch
     glm::vec3 grassPatchPos = glm::vec3(0.0f, 0.0f, 0.5f);
     glm::vec3 Normal = YAXIS;
-    float grassPatchMaxHeight = 0.5f;
-    float grassPatchRadius = 0.1f;
+    float grassPatchMinHeight = 0.5f;
+    float grassPatchMaxHeight = 1.0f;
+    float grassPatchMaxLean = 0.8f;
+    float grassPatchRadius = 3.5f;
 
     /*Grass g;
     g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);*/
 
     std::vector<Grass> world;
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 1000; i++) {
         Grass g;
-        g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);
+        g.generateBlade(grassPatchPos, YAXIS, grassPatchMinHeight, grassPatchMaxHeight, grassPatchMaxLean, grassPatchRadius);
         world.push_back(g);
     }
 
@@ -159,6 +161,7 @@ int main()
         {
             glm::mat4 transform = proj_view * g.m_transform * model;
             sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
+            sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);
 
             // Draw
             sh.useShaderProgram(shaderProgram);
