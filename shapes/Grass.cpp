@@ -52,9 +52,12 @@ void Grass::generateBlade(
 	glm::vec3 p2_neg = p2 - bladeSideDir * bladeP2Width;
 	glm::vec3 p2_pos = p2 + bladeSideDir * bladeP1Width;
 
-	float tSeq[NUM_BEZIER_VERTS] = { 0.0f, 1.0f / 4.0, 2.0f / 4.0, 3.0f / 4.0, 1.0f };
+	std::vector<float> tSeq;
 	std::pair<glm::vec3, glm::vec3> negBezier[NUM_BEZIER_VERTS];
 	std::pair<glm::vec3, glm::vec3> posBezier[NUM_BEZIER_VERTS];
+
+	for (int i = 0; i <= NUM_BEZIER_VERTS - 1; i++)
+		tSeq.push_back(static_cast<float>(i) / static_cast<float>(NUM_BEZIER_VERTS - 1));
 
 	for (int i = 0; i < NUM_BEZIER_VERTS; i++) {
 		float t = tSeq[i];
@@ -65,7 +68,7 @@ void Grass::generateBlade(
 	}
 
 	// CCW order
-	for (int i = 0; i < NUM_BEZIER_VERTS - 1; i++) {
+	for (int i = 0; i < NUM_BEZIER_VERTS - 2; i++) {
 		// Neg tri
 		m_vertices.push_back(negBezier[i].first);
 		m_normals.push_back(glm::cross(bladeSideDir, negBezier[i].second));
@@ -84,4 +87,13 @@ void Grass::generateBlade(
 
 		//std::cout << m_vertices.size() << std::endl;
 	}
+
+	// Tip of triangle
+	m_vertices.push_back(negBezier[NUM_BEZIER_VERTS - 2].first);
+	m_normals.push_back(glm::cross(bladeSideDir, negBezier[NUM_BEZIER_VERTS - 2].second));
+	m_vertices.push_back(posBezier[NUM_BEZIER_VERTS - 2].first);
+	m_normals.push_back(glm::cross(bladeSideDir, posBezier[NUM_BEZIER_VERTS - 2].second));
+	glm::vec3 midpt = (negBezier[NUM_BEZIER_VERTS - 1].first + posBezier[NUM_BEZIER_VERTS - 1].first) / 2.0f;
+	m_vertices.push_back(midpt);
+	m_normals.push_back(glm::cross(bladeSideDir, posBezier[NUM_BEZIER_VERTS - 1].second));
 }

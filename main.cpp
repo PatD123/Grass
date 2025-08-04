@@ -78,7 +78,7 @@ int main()
     float grassPatchMinHeight = 0.5f;
     float grassPatchMaxHeight = 1.0f;
     float grassPatchMaxLean = 0.8f;
-    float grassPatchRadius = 3.5f;
+    float grassPatchRadius = 2.0f;
 
     /*Grass g;
     g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);*/
