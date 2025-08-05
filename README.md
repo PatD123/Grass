@@ -2,6 +2,11 @@ Grass Simulation in OpenGL
 
 ## The journey
 
+LODing helps to increase FPS, but of course at the cost of aesthetics.
+
+<img width="796" height="624" alt="image" src="https://github.com/user-attachments/assets/24f8cd0c-5fff-4664-bd64-6525ec509d47" />
+
+
 Look at that FPS!
 
 <img width="784" height="627" alt="image" src="https://github.com/user-attachments/assets/0dcdc7d3-53de-4053-878a-8a04488e27b9" />
