@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <stdlib.h>
 #include <random>
@@ -12,19 +14,19 @@
 
 // CONSTS
 const static glm::vec3 YAXIS = glm::vec3(0.0, 1.0, 0.0);
-const static int NUM_BEZIER_VERTS = 12; // Vertices per side of bezier.
+const static int NUM_BEZIER_VERTS = 7; // Vertices per side of bezier.
 
 class Grass {
 public:
 	Grass(glm::vec3 localPos = glm::vec3(0.0));
 
 	void generateBlade(
-		glm::vec3 grassPatchPos,
-		glm::vec3 grassPatchNorm,
-		float grassPatchMinHeight,
-		float grassPatchMaxHeight,
-		float grassPatchMaxLean,
-		float grassPatchRadius
+		const glm::vec3& grassPatchPos,
+		const glm::vec3& grassPatchNorm,
+		const float grassPatchMinHeight,
+		const float grassPatchMaxHeight,
+		const float grassPatchMaxLean,
+		const float grassPatchRadius
 	);
 
 	glm::vec3 m_localPos;

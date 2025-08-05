@@ -14,6 +14,7 @@
 #include "camera/Camera.h"
 #include "shapes/Cube.h"
 #include "shapes/Grass.h"
+#include "tile/Tile.h"
 
 // Timing
 float PROGRAM_START_TIME = glfwGetTime();
@@ -78,22 +79,20 @@ int main()
     float grassPatchMinHeight = 0.5f;
     float grassPatchMaxHeight = 1.0f;
     float grassPatchMaxLean = 0.8f;
-    float grassPatchRadius = 2.0f;
+    float grassPatchRadius = 0.5f;
 
-    /*Grass g;
-    g.generateBlade(grassPatchPos, YAXIS, grassPatchMaxHeight, grassPatchRadius);*/
+    const int NUM_TILES_ROWS = 5;
+    const int NUM_TILES_COLS = 5;
+    const int BLADES_PER_TILE = 20;
 
-    std::vector<Grass> world;
-    for (int i = 0; i < 1000; i++) {
-        Grass g;
-        g.generateBlade(grassPatchPos, YAXIS, grassPatchMinHeight, grassPatchMaxHeight, grassPatchMaxLean, grassPatchRadius);
-        world.push_back(g);
-    }
-
-    std::vector<glm::vec3> vertices; // Reserve space so no reallocations?
-    for (Grass g : world) {
-        for (glm::vec3 v : g.m_vertices)
-            vertices.push_back(v);
+    std::vector<Tile> world;
+    for (int i = 0; i < NUM_TILES_ROWS; i++) {
+        for (int j = 0; j < NUM_TILES_COLS; j++) {
+            glm::vec3 tilePos = glm::vec3(i, 0.0, j);
+            Tile t(BLADES_PER_TILE, tilePos, YAXIS, grassPatchMinHeight, grassPatchMaxHeight, grassPatchMaxLean, grassPatchRadius);
+            t.generateGrass();
+            world.push_back(t);
+        }
     }
 
     GLuint vertVBO, normVBO, VAO;
@@ -157,20 +156,16 @@ int main()
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, near_plane, far_plane);
         glm::mat4 proj_view = proj * view;
 
-        for (Grass g : world)
-        {
-            glm::mat4 transform = proj_view * g.m_transform * model;
-            sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
-            sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);
-
-            // Draw
-            sh.useShaderProgram(shaderProgram);
-            glBindVertexArray(VAO);
-            glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
-            glBufferData(GL_ARRAY_BUFFER, g.m_vertices.size() * sizeof(glm::vec3), g.m_vertices.data(), GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, normVBO);
-            glBufferData(GL_ARRAY_BUFFER, g.m_normals.size() * sizeof(glm::vec3), g.m_normals.data(), GL_STATIC_DRAW);
-            glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
+        for (Tile& t : world) {
+            t.renderGrass(
+                proj_view,
+                model,
+                sh,
+                shaderProgram,
+                VAO,
+                vertVBO, 
+                normVBO
+            );
         }
         
 

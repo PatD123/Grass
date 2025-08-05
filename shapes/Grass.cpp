@@ -5,12 +5,12 @@ static std::mt19937 GENERATOR(getSeed());
 Grass::Grass(glm::vec3 localPos) : m_localPos(localPos) {}
 
 void Grass::generateBlade(
-	glm::vec3 grassPatchPos,
-	glm::vec3 grassPatchNorm,
-	float grassPatchMinHeight,
-	float grassPatchMaxHeight,
-	float grassPatchMaxLean,
-	float grassPatchRadius
+	const glm::vec3& grassPatchPos,
+	const glm::vec3& grassPatchNorm,
+	const float grassPatchMinHeight,
+	const float grassPatchMaxHeight,
+	const float grassPatchMaxLean,
+	const float grassPatchRadius
 ) {
 	std::mt19937 generator(getSeed());
 
@@ -30,10 +30,10 @@ void Grass::generateBlade(
 	// Some random values for our grass at the moment.
 	dis = std::uniform_real_distribution<>(-1.0, 1.0);
 	glm::vec3 bladeDir = glm::vec3(dis(GENERATOR), dis(GENERATOR), dis(GENERATOR));
-	dis = std::uniform_real_distribution<>(grassPatchMinHeight, grassPatchMaxHeight);
+	dis = std::uniform_real_distribution<>(grassPatchMaxHeight, grassPatchMaxHeight);
 	float bladeHeight = dis(GENERATOR);
-	dis = std::uniform_real_distribution<>(0.0, grassPatchMaxLean);
-	float bladeLean = dis(GENERATOR);
+	//dis = std::uniform_real_distribution<>(0.0, grassPatchMaxLean);
+	float bladeLean = 0.2;
 	float bladeP0Width = 0.08;
 	float bladeP1Width = 0.05;
 	float bladeP2Width = 0.025;
