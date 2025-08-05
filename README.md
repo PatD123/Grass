@@ -4,6 +4,9 @@ Grass Simulation in OpenGL
 
 Beautiful Gaggle of Grass
 
+<img width="756" height="463" alt="image" src="https://github.com/user-attachments/assets/eece504a-3297-4e76-887e-dfacc70a7a4b" />
+
+
 <img width="775" height="570" alt="image" src="https://github.com/user-attachments/assets/4390c7b0-3436-4388-a6da-37f000f8eefa" />
 
 Colorful Gaggle of Grass
