@@ -15,6 +15,8 @@ Tile::Tile(
 {}
 
 void Tile::generateGrass() {
+	
+
 	for (int i = 0; i < m_bladesPerTile; ++i) {
 		Grass g;
 		g.generateBlade(m_tilePos, m_tileNorm, m_tileMinHeight, m_tileMaxHeight, m_tileMaxLean, m_tileRadius);
@@ -29,12 +31,23 @@ void Tile::renderGrass(
 	GLuint shaderProgram,
 	GLuint VAO,
 	GLuint vertVBO,
-	GLuint normVBO
+	GLuint normVBO,
+	glm::vec3 camPos
 ) {
 	glBindVertexArray(VAO);
 
-	for (Grass& g : m_blades)
+	int increment = 1;
+	float dis = glm::length(camPos - m_tilePos);
+	if (dis < 7.0f)
+		increment = 1;
+	else if (7.0f <= dis && dis <= 10.f)
+		increment = 3;
+	else increment = NUM_BEZIER_VERTS;
+
+	for (int i = 0; i<m_bladesPerTile; i+=increment)
 	{
+		Grass& g = m_blades[i];
+
 		glm::mat4 transform = proj_view * g.m_transform * model;
 		sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
 		sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);

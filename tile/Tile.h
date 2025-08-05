@@ -33,7 +33,8 @@ public:
 		GLuint shaderProgram,
 		GLuint VAO,
 		GLuint vertVBO,
-		GLuint normVBO
+		GLuint normVBO,
+		glm::vec3 camPos
 	);
 
 	int m_bladesPerTile;
