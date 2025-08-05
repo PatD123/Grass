@@ -14,7 +14,7 @@
 
 // CONSTS
 const static glm::vec3 YAXIS = glm::vec3(0.0, 1.0, 0.0);
-const static int NUM_BEZIER_VERTS = 7; // Vertices per side of bezier.
+const static int NUM_BEZIER_VERTS = 15; // Vertices per side of bezier.
 
 class Grass {
 public:
