@@ -36,12 +36,15 @@ void Tile::renderGrass(
 ) {
 	glBindVertexArray(VAO);
 
+	// LODing
 	int increment = 1;
 	float dis = glm::length(camPos - m_tilePos);
 	if (dis < 7.0f)
 		increment = 1;
 	else if (7.0f <= dis && dis <= 10.f)
-		increment = 3;
+		increment = 2;
+	else if (10.0f < dis <= 15)
+		increment = 6;
 	else increment = NUM_BEZIER_VERTS;
 
 	for (int i = 0; i<m_bladesPerTile; i+=increment)
