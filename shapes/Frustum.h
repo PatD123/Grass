@@ -17,6 +17,12 @@ class Frustum {
 public:
 	Frustum(const Camera& cam, float aspectRatio, float fov, float zNear, float zFar);
 
+	bool check(const glm::vec3& p, const glm::mat4& modelTransform);
+
+private:
+
+	bool checkPlane(const glm::vec3& p, const Plane& plane);
+
 	Plane m_nearPlane;
 	Plane m_farPlane;
 	Plane m_leftPlane;

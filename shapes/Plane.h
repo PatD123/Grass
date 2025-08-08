@@ -13,6 +13,7 @@
 // Have a class per sides of our Frustum
 class Plane {
 public:
+	Plane();
 	Plane(glm::vec3 pos, glm::vec3 norm);
 
 	glm::vec3 m_normPos;
