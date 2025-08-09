@@ -3,6 +3,7 @@ Grass Simulation in OpenGL
 ## TODO
 - [ ] SIMD
 - [ ] Multithread when frustum culling, then draw only the ones that are not culled out.
+- [ ] Frustum culling is currently done per-blade. Probably should be altered to cull per tile.
 
 ## The journey
 
