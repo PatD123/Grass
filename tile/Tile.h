@@ -30,7 +30,6 @@ public:
 	void renderGrass(
 		const Camera& cam,
 		const glm::mat4& proj_view,
-		const glm::mat4& model,
 		ShaderHelper& sh,
 		GLuint shaderProgram,
 		GLuint VAO,

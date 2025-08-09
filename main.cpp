@@ -162,7 +162,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float near_plane = 0.1f, far_plane = 100.0f;
-        glm::mat4 model = glm::mat4(1.0f);
+        //glm::mat4 model = glm::mat4(1.0f); // Redudant technically
         glm::mat4 view = cam.getViewMat();
         glm::mat4 proj = glm::perspective(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
         glm::mat4 proj_view = proj * view;
@@ -171,7 +171,6 @@ int main()
             t.renderGrass(
                 cam,
                 proj_view,
-                model,
                 sh,
                 shaderProgram,
                 VAO,
