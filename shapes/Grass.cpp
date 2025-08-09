@@ -78,4 +78,11 @@ void Grass::generateBlade(
 
 		//std::cout << m_vertices.size() << std::endl;
 	}
+
+	// We need the bounding quad for frustum culling.
+	// Quad is from base of grass to tip of grass.
+	m_boundingQuad.push_back(negBezier[0].first);
+	m_boundingQuad.push_back(posBezier[0].first);
+	m_boundingQuad.push_back(negBezier[NUM_BEZIER_VERTS - 1].first);
+	m_boundingQuad.push_back(posBezier[NUM_BEZIER_VERTS - 1].first);
 }

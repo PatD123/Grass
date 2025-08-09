@@ -25,24 +25,23 @@ void Tile::generateGrass() {
 }
 
 void Tile::renderGrass(
-	const glm::mat4& proj_view, 
-	const glm::mat4& model, 
+	const Camera& cam,
+	const glm::mat4& proj_view,
 	ShaderHelper& sh, 
 	GLuint shaderProgram,
 	GLuint VAO,
 	GLuint vertVBO,
-	GLuint normVBO,
-	glm::vec3 camPos
+	GLuint normVBO
 ) {
 	glBindVertexArray(VAO);
 
 	// LODing
 	int increment = 1;
-	float dis = glm::length(camPos - m_tilePos);
+	float dis = glm::length(cam.m_pos - m_tilePos);
 	if (dis < 7.0f)
 		increment = 1;
 	else if (7.0f <= dis && dis <= 10.f)
-		increment = 2;
+		increment = 3;
 	else if (10.0f < dis <= 15)
 		increment = 6;
 	else increment = NUM_BEZIER_VERTS;
@@ -51,7 +50,18 @@ void Tile::renderGrass(
 	{
 		Grass& g = m_blades[i];
 
-		glm::mat4 transform = proj_view * g.m_transform * model;
+		// Frustum Culling 
+		bool flag = false;
+		for (glm::vec3& p : g.m_boundingQuad) {
+			if (!cam.m_frustum->check(p, g.m_transform)) {
+				flag = true;
+				break;
+			}
+		}
+
+		if (flag) continue;
+
+		glm::mat4 transform = proj_view * g.m_transform;
 		sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
 		sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);
 

@@ -11,6 +11,7 @@
 
 #include "../shapes/Grass.h"
 #include "../common/ShaderHelper.h"
+#include "../camera/Camera.h"
 
 class Tile {
 public:
@@ -27,14 +28,13 @@ public:
 	void generateGrass();
 
 	void renderGrass(
+		const Camera& cam,
 		const glm::mat4& proj_view,
-		const glm::mat4& model,
 		ShaderHelper& sh,
 		GLuint shaderProgram,
 		GLuint VAO,
 		GLuint vertVBO,
-		GLuint normVBO,
-		glm::vec3 camPos
+		GLuint normVBO
 	);
 
 	int m_bladesPerTile;

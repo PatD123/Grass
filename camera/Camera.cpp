@@ -1,16 +1,13 @@
-#include <iostream>
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 pos) {
+Camera::Camera(glm::vec3 pos, float aspectRatio, float fov, float zNear, float zFar) {
 	this->m_pos = pos;
     this->m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
     this->m_front = glm::vec3(0.0f, 0.0f, -1.0f);
     this->updateCameraVectors();
+
+    // Make a frustum
+    m_frustum = std::make_unique<Frustum>(aspectRatio, fov, zNear, zFar);
 }
 
 void Camera::setPosition(glm::vec3 pos) {
@@ -31,6 +28,9 @@ void Camera::processMovement(GLFWwindow* window, float deltaTime) {
         m_pos += cameraSpeed * m_worldUp;
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         m_pos -= cameraSpeed * m_worldUp;
+
+    // Update Frustum
+    m_frustum->update(m_front, m_right, m_up, m_pos);
 }
 
 void Camera::updateCameraVectors() {
@@ -57,7 +57,7 @@ void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constr
     m_yaw += xoffset;
     m_pitch += yoffset;
 
-    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    // Make sure that when pitch is out of bounds, screen doesn't get flipped
     if (constrainPitch)
     {
         if (m_pitch > 89.0f)
@@ -66,6 +66,9 @@ void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constr
             m_pitch = -89.0f;
     }
 
-    // update Front, Right and Up Vectors using the updated Euler angles
+    // Update Front, Right and Up Vectors using the updated Euler angles
     updateCameraVectors();
+
+    // Update Frustum
+    m_frustum->update(m_front, m_right, m_up, m_pos);
 }
