@@ -1,5 +1,9 @@
 Grass Simulation in OpenGL
 
+## TODO
+- [ ] SIMD
+- [ ] Multithread when frustum culling, then draw only the ones that are not culled out.
+
 ## The journey
 
 With more and more grass, even with LODing it gets pretty slow; Implemented Frustum Culling. 
