@@ -14,6 +14,7 @@
 #include "camera/Camera.h"
 #include "shapes/Cube.h"
 #include "shapes/Grass.h"
+#include "shapes/Frustum.h"
 #include "tile/Tile.h"
 
 // Timing
@@ -26,7 +27,17 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
 
 // Making Camera
-Camera cam(glm::vec3(0.0f, 0.0f, 0.0f));
+const float FOV = glm::radians(45.0f);
+const float ASPECT_RATIO = 800.0f / 600.0f;
+const float NEAR_PLANE = 0.1f;
+const float FAR_PLANE = 100.0f;
+Camera cam(
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    FOV,
+    ASPECT_RATIO,
+    NEAR_PLANE,
+    FAR_PLANE
+);
 const float radius = 5.0f;
 bool firstMouse = true;
 float lastX = 800.0f / 2.0;
@@ -153,8 +164,10 @@ int main()
         float near_plane = 0.1f, far_plane = 100.0f;
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = cam.getViewMat();
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, near_plane, far_plane);
+        glm::mat4 proj = glm::perspective(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
         glm::mat4 proj_view = proj * view;
+
+        Frustum f(cam, 800.0f / 600.0f, glm::radians(45.0f), near_plane, far_plane);
 
         for (Tile& t : world) {
             t.renderGrass(
@@ -165,7 +178,8 @@ int main()
                 VAO,
                 vertVBO, 
                 normVBO,
-                cam.m_pos
+                cam.m_pos,
+                f
             );
         }
         

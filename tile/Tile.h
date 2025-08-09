@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../shapes/Grass.h"
+#include "../shapes/Frustum.h"
 #include "../common/ShaderHelper.h"
 
 class Tile {
@@ -34,7 +35,8 @@ public:
 		GLuint VAO,
 		GLuint vertVBO,
 		GLuint normVBO,
-		glm::vec3 camPos
+		glm::vec3 camPos,
+		Frustum& f
 	);
 
 	int m_bladesPerTile;

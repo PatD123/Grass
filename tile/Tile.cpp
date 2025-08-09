@@ -32,7 +32,8 @@ void Tile::renderGrass(
 	GLuint VAO,
 	GLuint vertVBO,
 	GLuint normVBO,
-	glm::vec3 camPos
+	glm::vec3 camPos,
+	Frustum& f
 ) {
 	glBindVertexArray(VAO);
 
@@ -50,6 +51,16 @@ void Tile::renderGrass(
 	for (int i = 0; i<m_bladesPerTile; i+=increment)
 	{
 		Grass& g = m_blades[i];
+
+		bool flag = false;
+		for (glm::vec3& p : g.m_boundingQuad) {
+			if (!f.check(p, model)) {
+				flag = true;
+				break;
+			}
+		}
+
+		if (flag) continue;
 
 		glm::mat4 transform = proj_view * g.m_transform * model;
 		sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));

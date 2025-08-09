@@ -15,6 +15,8 @@ Frustum::Frustum(const Camera& cam, float aspectRatio, float fov, float zNear, f
 	m_botPlane = Plane(cam.m_pos, glm::cross(-cam.m_right, middleVec - cam.m_up * halfVSide));
 }
 
+
+
 // Update frustum based on position.
 
 bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) {

@@ -1,10 +1,15 @@
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 pos) {
+Camera::Camera(glm::vec3 pos, float aspectRatio, float fov, float zNear, float zFar) {
 	this->m_pos = pos;
     this->m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
     this->m_front = glm::vec3(0.0f, 0.0f, -1.0f);
     this->updateCameraVectors();
+
+    // Make a frustum
+    frustum = std::unique_ptr<Frustum>(
+        new Frustum(*this, aspectRatio, fov, zNear, zFar)
+    );
 }
 
 void Camera::setPosition(glm::vec3 pos) {
