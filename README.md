@@ -3,9 +3,9 @@ Grass Simulation in OpenGL
 ## The journey
 
 With more and more grass, even with LODing it gets pretty slow; Implemented Frustum Culling. 
-With good LODing and Frustum Culling, we get high 30s low 40s FPS.
+With good LODing and Frustum Culling, we get 60FPS.
 
-https://github.com/user-attachments/assets/1a2bb5da-0b26-42ad-9c97-238dcd3e4e50
+https://github.com/user-attachments/assets/360df1e2-c34b-42c0-8e26-14a5eb0a804d
 
 LODing helps to increase FPS, but of course at the cost of aesthetics.
 
