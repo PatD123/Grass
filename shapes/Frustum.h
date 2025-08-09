@@ -11,17 +11,25 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Plane.h"
-#include "../camera/Camera.h"
 
 class Frustum {
 public:
-	Frustum(const Camera& cam, float aspectRatio, float fov, float zNear, float zFar);
+	Frustum(float aspectRatio, float fov, float zNear, float zFar);
 
 	bool check(const glm::vec3& p, const glm::mat4& modelTransform);
+
+	void update(const glm::vec3& camFront, const glm::vec3& camRight, const glm::vec3& camUp, const glm::vec3& camPos);
 
 private:
 
 	bool checkPlane(const glm::vec3& p, const Plane& plane);
+
+	const float m_aspectRatio;
+	const float m_fov;
+	const float m_zNear;
+	const float m_zFar;
+	const float m_halfVSide;
+	const float m_halfHSide;
 
 	Plane m_nearPlane;
 	Plane m_farPlane;

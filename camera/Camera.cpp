@@ -7,9 +7,7 @@ Camera::Camera(glm::vec3 pos, float aspectRatio, float fov, float zNear, float z
     this->updateCameraVectors();
 
     // Make a frustum
-    frustum = std::unique_ptr<Frustum>(
-        new Frustum(*this, aspectRatio, fov, zNear, zFar)
-    );
+    m_frustum = std::make_unique<Frustum>(aspectRatio, fov, zNear, zFar);
 }
 
 void Camera::setPosition(glm::vec3 pos) {
@@ -30,6 +28,9 @@ void Camera::processMovement(GLFWwindow* window, float deltaTime) {
         m_pos += cameraSpeed * m_worldUp;
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         m_pos -= cameraSpeed * m_worldUp;
+
+    // Update Frustum
+    m_frustum->update(m_front, m_right, m_up, m_pos);
 }
 
 void Camera::updateCameraVectors() {
@@ -56,7 +57,7 @@ void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constr
     m_yaw += xoffset;
     m_pitch += yoffset;
 
-    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    // Make sure that when pitch is out of bounds, screen doesn't get flipped
     if (constrainPitch)
     {
         if (m_pitch > 89.0f)
@@ -65,6 +66,9 @@ void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constr
             m_pitch = -89.0f;
     }
 
-    // update Front, Right and Up Vectors using the updated Euler angles
+    // Update Front, Right and Up Vectors using the updated Euler angles
     updateCameraVectors();
+
+    // Update Frustum
+    m_frustum->update(m_front, m_right, m_up, m_pos);
 }

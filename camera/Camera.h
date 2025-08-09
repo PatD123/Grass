@@ -33,7 +33,7 @@ public:
 	glm::vec3 m_worldUp;
 
 	// Each camera has its own frustum
-	std::unique_ptr<Frustum> frustum;
+	std::unique_ptr<Frustum> m_frustum;
 	
 	float m_yaw = YAW;
 	float m_pitch = PITCH;

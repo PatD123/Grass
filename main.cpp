@@ -167,19 +167,16 @@ int main()
         glm::mat4 proj = glm::perspective(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
         glm::mat4 proj_view = proj * view;
 
-        Frustum f(cam, 800.0f / 600.0f, glm::radians(45.0f), near_plane, far_plane);
-
         for (Tile& t : world) {
             t.renderGrass(
+                cam,
                 proj_view,
                 model,
                 sh,
                 shaderProgram,
                 VAO,
                 vertVBO, 
-                normVBO,
-                cam.m_pos,
-                f
+                normVBO
             );
         }
         

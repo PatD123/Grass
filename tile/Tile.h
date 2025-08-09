@@ -10,8 +10,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../shapes/Grass.h"
-#include "../shapes/Frustum.h"
 #include "../common/ShaderHelper.h"
+#include "../camera/Camera.h"
 
 class Tile {
 public:
@@ -28,15 +28,14 @@ public:
 	void generateGrass();
 
 	void renderGrass(
+		const Camera& cam,
 		const glm::mat4& proj_view,
 		const glm::mat4& model,
 		ShaderHelper& sh,
 		GLuint shaderProgram,
 		GLuint VAO,
 		GLuint vertVBO,
-		GLuint normVBO,
-		glm::vec3 camPos,
-		Frustum& f
+		GLuint normVBO
 	);
 
 	int m_bladesPerTile;

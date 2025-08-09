@@ -25,21 +25,20 @@ void Tile::generateGrass() {
 }
 
 void Tile::renderGrass(
+	const Camera& cam,
 	const glm::mat4& proj_view, 
 	const glm::mat4& model, 
 	ShaderHelper& sh, 
 	GLuint shaderProgram,
 	GLuint VAO,
 	GLuint vertVBO,
-	GLuint normVBO,
-	glm::vec3 camPos,
-	Frustum& f
+	GLuint normVBO
 ) {
 	glBindVertexArray(VAO);
 
 	// LODing
 	int increment = 1;
-	float dis = glm::length(camPos - m_tilePos);
+	float dis = glm::length(cam.m_pos - m_tilePos);
 	if (dis < 7.0f)
 		increment = 1;
 	else if (7.0f <= dis && dis <= 10.f)
@@ -52,9 +51,11 @@ void Tile::renderGrass(
 	{
 		Grass& g = m_blades[i];
 
+		glm::mat4 transfm = g.m_transform * model;
+
 		bool flag = false;
 		for (glm::vec3& p : g.m_boundingQuad) {
-			if (!f.check(p, model)) {
+			if (!cam.m_frustum->check(p, transfm)) {
 				flag = true;
 				break;
 			}
