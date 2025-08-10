@@ -30,7 +30,7 @@ void processInput(GLFWwindow* window);
 const float FOV = glm::radians(45.0f);
 const float ASPECT_RATIO = 800.0f / 600.0f;
 const float NEAR_PLANE = 0.1f;
-const float FAR_PLANE = 100.0f;
+const float FAR_PLANE = 25.0f;
 Camera cam(
     glm::vec3(0.0f, 0.0f, 0.0f),
     FOV,
