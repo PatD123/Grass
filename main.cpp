@@ -27,13 +27,13 @@ float lastFrame = 0.0f; // Time of last frame
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
-void threadCull(const Camera& cam, std::vector<Grass>& blades);
+void threadCull(const Camera& cam, Tile& t);
 
 // Making Camera
 const float FOV = glm::radians(45.0f);
 const float ASPECT_RATIO = 800.0f / 600.0f;
 const float NEAR_PLANE = 0.1f;
-const float FAR_PLANE = 100.0f;
+const float FAR_PLANE = 25.0f;
 const glm::mat4 PROJ = glm::perspective(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
 Camera cam(
     glm::vec3(0.0f, 0.0f, 0.0f),
@@ -138,7 +138,7 @@ int main()
     glfwSwapInterval(1);
 
     // Enable Thread Pool
-    ThreadPool threadPool(4);
+    ThreadPool threadPool(3);
 
     std::cout << "Starting to render" << std::endl;
 
@@ -173,7 +173,7 @@ int main()
 
         for (Tile& t : world) {
 
-            threadPool.enqueue(std::bind(threadCull, std::ref(cam), std::ref(t.m_blades)));
+            threadPool.enqueue(std::bind(threadCull, std::ref(cam), std::ref(t)));
 
             t.renderGrass(
                 cam,
@@ -226,10 +226,13 @@ void mouseCallback(GLFWwindow* window, double dXPos, double dYPos)
     lastY = ypos;
 }
 
-void threadCull(const Camera& cam, std::vector<Grass>& blades) {
+void threadCull(const Camera& cam, Tile& t) {
+
     // For the ith tile, run through each of the grass blades
     // and mark them as culled or not.
-    for (Grass& g : blades) {
+    for (int i = 0; i<t.m_bladesPerTile; ++i) {
+
+        Grass& g = t.m_blades[i];
 
         bool visible = true;
         for (glm::vec3& p : g.m_boundingQuad) {         // SIMD POSSIBILITY HERE.
