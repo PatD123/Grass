@@ -2,7 +2,9 @@
 
 static std::mt19937 GENERATOR(getSeed());
 
-Grass::Grass(glm::vec3 localPos) : m_localPos(localPos) {}
+Grass::Grass(glm::vec3 localPos, bool culled) 
+	: m_localPos(localPos), m_culled(culled)
+{}
 
 void Grass::generateBlade(
 	const glm::vec3& grassPatchPos,
@@ -85,4 +87,12 @@ void Grass::generateBlade(
 	m_boundingQuad.push_back(posBezier[0].first);
 	m_boundingQuad.push_back(negBezier[NUM_BEZIER_VERTS - 1].first);
 	m_boundingQuad.push_back(posBezier[NUM_BEZIER_VERTS - 1].first);
+}
+
+void Grass::setCulled() {
+	m_culled = true;
+}
+
+void Grass::setVisible() {
+	m_culled = false;
 }

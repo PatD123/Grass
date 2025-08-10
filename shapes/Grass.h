@@ -18,7 +18,7 @@ const static int NUM_BEZIER_VERTS = 15; // Vertices per side of bezier.
 
 class Grass {
 public:
-	Grass(glm::vec3 localPos = glm::vec3(0.0));
+	Grass(glm::vec3 localPos = glm::vec3(0.0), bool culled = true);
 
 	void generateBlade(
 		const glm::vec3& grassPatchPos,
@@ -29,10 +29,16 @@ public:
 		const float grassPatchRadius
 	);
 
+	void setCulled();
+
+	void setVisible();
+
 	glm::vec3 m_localPos;
 	std::vector<glm::vec3> m_vertices;
 	std::vector<glm::vec3> m_normals;
 	std::vector<glm::vec3> m_boundingQuad;
 	glm::mat4 m_transform;
+	
 	float m_bladeHeight;
+	bool m_culled;
 };

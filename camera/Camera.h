@@ -51,4 +51,6 @@ public:
 	glm::mat4 getViewMat();
 
 	void processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
+
+	bool checkInView(const glm::vec3& p, const glm::mat4& modelTransform) const;
 };

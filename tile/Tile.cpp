@@ -50,28 +50,22 @@ void Tile::renderGrass(
 	{
 		Grass& g = m_blades[i];
 
-		// Frustum Culling 
-		bool flag = false;
-		for (glm::vec3& p : g.m_boundingQuad) {
-			if (!cam.m_frustum->check(p, g.m_transform)) {
-				flag = true;
-				break;
-			}
+		if (!g.m_culled)
+		{
+			glm	::mat4 transform = proj_view * g.m_transform;
+			sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
+			sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);
+
+			// Draw
+			sh.useShaderProgram(shaderProgram);
+			glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
+			glBufferData(GL_ARRAY_BUFFER, g.m_vertices.size() * sizeof(glm::vec3), g.m_vertices.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, normVBO);
+			glBufferData(GL_ARRAY_BUFFER, g.m_normals.size() * sizeof(glm::vec3), g.m_normals.data(), GL_STATIC_DRAW);
+			glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
 		}
 
-		if (flag) continue;
-
-		glm::mat4 transform = proj_view * g.m_transform;
-		sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
-		sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);
-
-		// Draw
-		sh.useShaderProgram(shaderProgram);
-		glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
-		glBufferData(GL_ARRAY_BUFFER, g.m_vertices.size() * sizeof(glm::vec3), g.m_vertices.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, normVBO);
-		glBufferData(GL_ARRAY_BUFFER, g.m_normals.size() * sizeof(glm::vec3), g.m_normals.data(), GL_STATIC_DRAW);
-		glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
+		
 	}
 
 	glBindVertexArray(0);

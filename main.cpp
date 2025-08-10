@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <random>
 #include <cmath>
+#include <thread>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -25,12 +26,14 @@ float lastFrame = 0.0f; // Time of last frame
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
+void threadCull(int x, const Camera& cam, std::vector<Tile>& w);
 
 // Making Camera
 const float FOV = glm::radians(45.0f);
 const float ASPECT_RATIO = 800.0f / 600.0f;
 const float NEAR_PLANE = 0.1f;
 const float FAR_PLANE = 100.0f;
+const glm::mat4 PROJ = glm::perspective(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
 Camera cam(
     glm::vec3(0.0f, 0.0f, 0.0f),
     FOV,
@@ -161,11 +164,18 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float near_plane = 0.1f, far_plane = 100.0f;
-        //glm::mat4 model = glm::mat4(1.0f); // Redudant technically
         glm::mat4 view = cam.getViewMat();
-        glm::mat4 proj = glm::perspective(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
-        glm::mat4 proj_view = proj * view;
+        glm::mat4 proj_view = PROJ * view;
+
+        std::thread t1(threadCull, 0, std::ref(cam), std::ref(world));
+        std::thread t2(threadCull, 1, std::ref(cam), std::ref(world));
+        std::thread t3(threadCull, 2, std::ref(cam), std::ref(world));
+        std::thread t4(threadCull, 3, std::ref(cam), std::ref(world));
+
+        t1.join();
+        t2.join();
+        t3.join();
+        t4.join();
 
         for (Tile& t : world) {
             t.renderGrass(
@@ -217,4 +227,25 @@ void mouseCallback(GLFWwindow* window, double dXPos, double dYPos)
 
     lastX = xpos;
     lastY = ypos;
+}
+
+void threadCull(int x, const Camera& cam, std::vector<Tile>& w) {
+    for (int i = x; i < w.size(); i += 4) {
+
+        // For the ith tile, run through each of the grass blades
+        // and mark them as culled or not.
+        for (Grass& g : w[i].m_blades) {
+
+            bool flag = false;
+            for (glm::vec3& p : g.m_boundingQuad) {
+                if (!cam.checkInView(p, g.m_transform)) {
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (flag) g.setCulled();
+            else g.setVisible();
+        }
+    }
 }

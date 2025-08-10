@@ -72,3 +72,7 @@ void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constr
     // Update Frustum
     m_frustum->update(m_front, m_right, m_up, m_pos);
 }
+
+bool Camera::checkInView(const glm::vec3& p, const glm::mat4& modelTransform) const {
+    return m_frustum->check(p, modelTransform);
+}
