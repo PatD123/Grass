@@ -12,6 +12,7 @@
 
 #include "common/ShaderHelper.h"
 #include "common/utils.hpp"
+#include "common/ThreadPool.hpp"
 #include "camera/Camera.h"
 #include "shapes/Cube.h"
 #include "shapes/Grass.h"
@@ -95,8 +96,8 @@ int main()
     float grassPatchMaxLean = 0.8f;
     float grassPatchRadius = 0.5f;
 
-    const int NUM_TILES_ROWS = 20;
-    const int NUM_TILES_COLS = 20;
+    const int NUM_TILES_ROWS = 30;
+    const int NUM_TILES_COLS = 30;
     const int BLADES_PER_TILE = 50;
 
     std::vector<Tile> world;
@@ -136,6 +137,9 @@ int main()
     // Enable V-sync for v-blanks
     glfwSwapInterval(1);
 
+    // Enable Thread Pool
+    ThreadPool threadPool(4);
+
     std::cout << "Starting to render" << std::endl;
 
     while (!glfwWindowShouldClose(window))
@@ -167,7 +171,12 @@ int main()
         glm::mat4 view = cam.getViewMat();
         glm::mat4 proj_view = PROJ * view;
 
-        std::thread t1(threadCull, 0, std::ref(cam), std::ref(world));
+        threadPool.enqueue(std::bind(threadCull, 0, std::ref(cam), std::ref(world)));
+        threadPool.enqueue(std::bind(threadCull, 1, std::ref(cam), std::ref(world)));
+        threadPool.enqueue(std::bind(threadCull, 2, std::ref(cam), std::ref(world)));
+        threadPool.enqueue(std::bind(threadCull, 3, std::ref(cam), std::ref(world)));
+
+        /*std::thread t1(threadCull, 0, std::ref(cam), std::ref(world));
         std::thread t2(threadCull, 1, std::ref(cam), std::ref(world));
         std::thread t3(threadCull, 2, std::ref(cam), std::ref(world));
         std::thread t4(threadCull, 3, std::ref(cam), std::ref(world));
@@ -175,7 +184,7 @@ int main()
         t1.join();
         t2.join();
         t3.join();
-        t4.join();
+        t4.join();*/
 
         for (Tile& t : world) {
             t.renderGrass(
