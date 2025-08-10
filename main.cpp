@@ -27,7 +27,7 @@ float lastFrame = 0.0f; // Time of last frame
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
-void threadCull(int x, const Camera& cam, std::vector<Tile>& w);
+void threadCull(const Camera& cam, std::vector<Grass>& blades);
 
 // Making Camera
 const float FOV = glm::radians(45.0f);
@@ -171,22 +171,10 @@ int main()
         glm::mat4 view = cam.getViewMat();
         glm::mat4 proj_view = PROJ * view;
 
-        threadPool.enqueue(std::bind(threadCull, 0, std::ref(cam), std::ref(world)));
-        threadPool.enqueue(std::bind(threadCull, 1, std::ref(cam), std::ref(world)));
-        threadPool.enqueue(std::bind(threadCull, 2, std::ref(cam), std::ref(world)));
-        threadPool.enqueue(std::bind(threadCull, 3, std::ref(cam), std::ref(world)));
-
-        /*std::thread t1(threadCull, 0, std::ref(cam), std::ref(world));
-        std::thread t2(threadCull, 1, std::ref(cam), std::ref(world));
-        std::thread t3(threadCull, 2, std::ref(cam), std::ref(world));
-        std::thread t4(threadCull, 3, std::ref(cam), std::ref(world));
-
-        t1.join();
-        t2.join();
-        t3.join();
-        t4.join();*/
-
         for (Tile& t : world) {
+
+            threadPool.enqueue(std::bind(threadCull, std::ref(cam), std::ref(t.m_blades)));
+
             t.renderGrass(
                 cam,
                 proj_view,
@@ -238,23 +226,21 @@ void mouseCallback(GLFWwindow* window, double dXPos, double dYPos)
     lastY = ypos;
 }
 
-void threadCull(int x, const Camera& cam, std::vector<Tile>& w) {
-    for (int i = x; i < w.size(); i += 4) {
+void threadCull(const Camera& cam, std::vector<Grass>& blades) {
+    // For the ith tile, run through each of the grass blades
+    // and mark them as culled or not.
+    for (Grass& g : blades) {
 
-        // For the ith tile, run through each of the grass blades
-        // and mark them as culled or not.
-        for (Grass& g : w[i].m_blades) {
-
-            bool flag = false;
-            for (glm::vec3& p : g.m_boundingQuad) {
-                if (!cam.checkInView(p, g.m_transform)) {
-                    flag = true;
-                    break;
-                }
+        bool visible = true;
+        for (glm::vec3& p : g.m_boundingQuad) {         // SIMD POSSIBILITY HERE.
+            if (cam.checkInView(p, g.m_transform)) continue;
+            else {
+                visible = false;
+                break;
             }
-
-            if (flag) g.setCulled();
-            else g.setVisible();
         }
+
+        if (visible) g.setVisible();
+        else g.setCulled();
     }
 }
