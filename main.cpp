@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <random>
 #include <cmath>
+#include <nmmintrin.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -92,8 +93,8 @@ int main()
     float grassPatchMaxLean = 0.8f;
     float grassPatchRadius = 0.5f;
 
-    const int NUM_TILES_ROWS = 20;
-    const int NUM_TILES_COLS = 20;
+    const int NUM_TILES_ROWS = 30;
+    const int NUM_TILES_COLS = 30;
     const int BLADES_PER_TILE = 50;
 
     std::vector<Tile> world;

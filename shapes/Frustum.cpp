@@ -35,6 +35,7 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) {
 		
 }
 
+// This has got to be SIMD'd
 bool Frustum::checkPlane(const glm::vec3& p, const Plane& plane) {
 
 	// If the dot product is negative, which means it will point inward into frustum.
