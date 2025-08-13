@@ -14,6 +14,30 @@ void Frustum::update(const glm::vec3& camFront, const glm::vec3& camRight, const
 	m_leftPlane = Plane(camPos, -glm::cross(middleVec - camRight * m_halfHSide, camUp));
 	m_topPlane = Plane(camPos, glm::cross(camRight, middleVec + camUp * m_halfVSide));
 	m_botPlane = Plane(camPos, glm::cross(-camRight, middleVec - camUp * m_halfVSide));
+
+	// Load norm positions
+	float x2[6], y2[6], z2[6];
+	x2[0] = m_nearPlane.m_normPos[0]; y2[0] = m_nearPlane.m_normPos[1]; z2[0] = m_nearPlane.m_normPos[2];
+	x2[1] = m_farPlane.m_normPos[0]; y2[1] = m_farPlane.m_normPos[1]; z2[1] = m_farPlane.m_normPos[2];
+	x2[2] = m_leftPlane.m_normPos[0]; y2[2] = m_leftPlane.m_normPos[1]; z2[2] = m_leftPlane.m_normPos[2];
+	x2[3] = m_rightPlane.m_normPos[0]; y2[3] = m_rightPlane.m_normPos[1]; z2[3] = m_rightPlane.m_normPos[2];
+	x2[4] = m_botPlane.m_normPos[0]; y2[4] = m_botPlane.m_normPos[1]; z2[4] = m_botPlane.m_normPos[2];
+	x2[5] = m_topPlane.m_normPos[0]; y2[5] = m_topPlane.m_normPos[1]; z2[5] = m_topPlane.m_normPos[2];
+	vx_planeNormPos = _mm256_loadu_ps(x2);
+	vy_planeNormPos = _mm256_loadu_ps(y2);
+	vz_planeNormPos = _mm256_loadu_ps(z2);
+
+	// Load norm vectors
+	float x3[6], y3[6], z3[6];
+	x3[0] = m_nearPlane.m_norm[0];  y3[0] = m_nearPlane.m_norm[1];  z3[0] = m_nearPlane.m_norm[2];
+	x3[1] = m_farPlane.m_norm[0];   y3[1] = m_farPlane.m_norm[1];   z3[1] = m_farPlane.m_norm[2];
+	x3[2] = m_leftPlane.m_norm[0];  y3[2] = m_leftPlane.m_norm[1];  z3[2] = m_leftPlane.m_norm[2];
+	x3[3] = m_rightPlane.m_norm[0]; y3[3] = m_rightPlane.m_norm[1]; z3[3] = m_rightPlane.m_norm[2];
+	x3[4] = m_botPlane.m_norm[0];   y3[4] = m_botPlane.m_norm[1];   z3[4] = m_botPlane.m_norm[2];
+	x3[5] = m_topPlane.m_norm[0];   y3[5] = m_topPlane.m_norm[1];   z3[5] = m_topPlane.m_norm[2];
+	vx_planeNorms = _mm256_loadu_ps(x3);
+	vy_planeNorms = _mm256_loadu_ps(y3);
+	vz_planeNorms = _mm256_loadu_ps(z3);
 }
 
 
@@ -62,7 +86,27 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) {
 	// 1 Mult
 	// 1 Sub
 
-	
+	// Broadcast model across all lanes
+	__m256 vx_model = _mm256_set1_ps(model_p[0]);
+	__m256 vy_model = _mm256_set1_ps(model_p[1]);
+	__m256 vz_model = _mm256_set1_ps(model_p[2]);
+
+	// Sub normPos from model_p
+	__m256 result_x = _mm256_sub_ps(vx_model, vx_planeNormPos);
+	__m256 result_y = _mm256_sub_ps(vy_model, vy_planeNormPos);
+	__m256 result_z = _mm256_sub_ps(vz_model, vz_planeNormPos);
+
+	// Fuse Multiply Add (FMA)
+	__m256 result = _mm256_mul_ps(result_x, vx_planeNorms);                  // x1*x2
+	result = _mm256_fmadd_ps(result_y, vy_planeNorms, result);               // x1*x2 + y1*y2
+	result = _mm256_fmadd_ps(result_z, vz_planeNorms, result);
+
+	float checkResults[8];
+	_mm256_storeu_ps(checkResults, result);
+
+	for (int i = 2; i < 8; i++) {
+		if (checkResults[i] > 0) return false;
+	}
 		
 }
 

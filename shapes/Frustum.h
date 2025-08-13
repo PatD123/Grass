@@ -37,4 +37,12 @@ private:
 	Plane m_rightPlane;
 	Plane m_topPlane;
 	Plane m_botPlane;
+
+	// For simd_1
+	__m256 vx_planeNormPos;
+	__m256 vy_planeNormPos;
+	__m256 vz_planeNormPos;
+	__m256 vx_planeNorms;
+	__m256 vy_planeNorms;
+	__m256 vz_planeNorms;
 };
