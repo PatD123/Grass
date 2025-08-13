@@ -3,8 +3,9 @@ Grass Simulation in OpenGL
 ## TODO
 - [X] MORE Parallelizable MORE VECTORIZABLE!!!!
 - 🤯 Learned to use AVX Intel Intrinsics.
-- **At ~50k blades, SIMD sits consistently at high 30s - low 40s FPS. Scalar approach sits at mid 30s FPS.**
-- **At ~125k blades, SIMD sits consistently at high 20s FPS. Scalar approach sinks to ~10 FPS. ▶️ Very good.**
+- **At ~20k blades, SIMD sits consistently at high 50s ~60 FPS. Scalar sits at low 40 - high 40s**
+- **At ~50k blades, SIMD sits consistently at high 40s - low 50s FPS. Scalar approach sits at mid 40s FPS.**
+- **At ~125k blades, SIMD sits consistently at mid 30s FPS. Scalar approach sinks to ~19 FPS. ▶️ Very good.**
 - [X] Multithread when frustum culling, then draw only the ones that are not culled out
 - :question: Apparently not great and doens't do as well as non-threaded.
 - [ ] Frustum culling is currently done per-blade. Probably should be altered to cull per tile.
