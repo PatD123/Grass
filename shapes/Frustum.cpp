@@ -63,15 +63,9 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) {
 	// 1 Sub
 
 	// Load 6 model_p points into a 256 bit register (8 floats)
-	float x1[6], y1[6], z1[6];
-	for (int i = 0; i < 6; i++) {
-		x1[i] = model_p[0];
-		y1[i] = model_p[1];
-		z1[i] = model_p[2];
-	}
-	__m256 vx_model = _mm256_loadu_ps(x1);
-	__m256 vy_model = _mm256_loadu_ps(y1);
-	__m256 vz_model = _mm256_loadu_ps(z1);
+	__m256 vx_model = _mm256_set1_ps(model_p[0]);
+	__m256 vy_model = _mm256_set1_ps(model_p[1]);
+	__m256 vz_model = _mm256_set1_ps(model_p[2]);
 
 	// Load each planes norm_pos into a 256 bit register (8 floats)
 	float x2[6], y2[6], z2[6];
