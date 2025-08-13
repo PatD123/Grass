@@ -40,7 +40,27 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) {
 	// result = { x[], y[], z[] }
 	// plane.normals = { x[], y[], z[] }
 	// Fused Multiply-Add.
-	//
+	// 
+	// CURRENT IMPLEMENTATION
+	// 1 Loading 6 models
+	// 1 Loading 6 norm_pos
+	// 1 Vec subtract
+	// 1 Loading 6 norms
+	// 1 FMA
+	// 
+	// OTHER IMPLEMENTATION
+	// Prevectorize norm pos and norm --> Load both already
+	// 1 Loading 6 models
+	// 1 Vec subtract
+	// 1 FMA
+	// 
+	// OTHER IMPLMENTATION
+	// (x_model - x_plane_norm_pos) x_plane_norm = x_model * x_plane_norm - x_plane_norm_pos * x_plane_norm
+	// Prevectorize x_plane_norm_pos * x_plane_norm
+	// Prevectorize x_plane_nrom
+	// 1 Loading 6 models
+	// 1 Mult
+	// 1 Sub
 
 	// Load 6 model_p points into a 256 bit register (8 floats)
 	float x1[6], y1[6], z1[6];
@@ -97,13 +117,13 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) {
 	return true;
 
 	// If all these return true, we're good.
-	return
+	/*return
 		checkPlane(model_p, m_nearPlane) &&
 		checkPlane(model_p, m_farPlane) &&
 		checkPlane(model_p, m_leftPlane) &&
 		checkPlane(model_p, m_rightPlane) &&
 		checkPlane(model_p, m_botPlane) &&
-		checkPlane(model_p, m_topPlane);
+		checkPlane(model_p, m_topPlane);*/
 		
 }
 
