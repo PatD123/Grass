@@ -16,7 +16,6 @@ void Frustum::update(const glm::vec3& camFront, const glm::vec3& camRight, const
 	m_botPlane = Plane(camPos, glm::cross(-camRight, middleVec - camUp * m_halfVSide));
 
 	// Load norm positions
-	float x2[6], y2[6], z2[6];
 	x2[0] = m_nearPlane.m_normPos[0]; y2[0] = m_nearPlane.m_normPos[1]; z2[0] = m_nearPlane.m_normPos[2];
 	x2[1] = m_farPlane.m_normPos[0]; y2[1] = m_farPlane.m_normPos[1]; z2[1] = m_farPlane.m_normPos[2];
 	x2[2] = m_leftPlane.m_normPos[0]; y2[2] = m_leftPlane.m_normPos[1]; z2[2] = m_leftPlane.m_normPos[2];
@@ -28,7 +27,6 @@ void Frustum::update(const glm::vec3& camFront, const glm::vec3& camRight, const
 	vz_planeNormPos = _mm256_loadu_ps(z2);
 
 	// Load norm vectors
-	float x3[6], y3[6], z3[6];
 	x3[0] = m_nearPlane.m_norm[0];  y3[0] = m_nearPlane.m_norm[1];  z3[0] = m_nearPlane.m_norm[2];
 	x3[1] = m_farPlane.m_norm[0];   y3[1] = m_farPlane.m_norm[1];   z3[1] = m_farPlane.m_norm[2];
 	x3[2] = m_leftPlane.m_norm[0];  y3[2] = m_leftPlane.m_norm[1];  z3[2] = m_leftPlane.m_norm[2];
@@ -43,7 +41,7 @@ void Frustum::update(const glm::vec3& camFront, const glm::vec3& camRight, const
 
 // Update frustum based on position.
 
-bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) {
+bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) const {
 
 	// Transform point
 	const glm::vec3 model_p = modelTransform * glm::vec4(p, 1);
@@ -101,12 +99,12 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) {
 	result = _mm256_fmadd_ps(result_y, vy_planeNorms, result);               // x1*x2 + y1*y2
 	result = _mm256_fmadd_ps(result_z, vz_planeNorms, result);
 
-	float checkResults[8];
-	_mm256_storeu_ps(checkResults, result);
+	__m256 cmp = _mm256_cmp_ps(result, _mm256_setzero_ps(), _CMP_GT_OQ);
 
-	for (int i = 2; i < 8; i++) {
-		if (checkResults[i] > 0) return false;
-	}
+	int mask = _mm256_movemask_ps(cmp);
+
+	// Only care about indices 2..7, so mask off bits 0 and 1
+	return (mask & ~0b11) == 0;
 		
 }
 

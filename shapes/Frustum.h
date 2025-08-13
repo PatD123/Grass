@@ -16,7 +16,7 @@ class Frustum {
 public:
 	Frustum(float aspectRatio, float fov, float zNear, float zFar);
 
-	bool check(const glm::vec3& p, const glm::mat4& modelTransform);
+	bool check(const glm::vec3& p, const glm::mat4& modelTransform) const;
 
 	void update(const glm::vec3& camFront, const glm::vec3& camRight, const glm::vec3& camUp, const glm::vec3& camPos);
 
@@ -39,9 +39,11 @@ private:
 	Plane m_botPlane;
 
 	// For simd_1
+	float x2[6], y2[6], z2[6];
 	__m256 vx_planeNormPos;
 	__m256 vy_planeNormPos;
 	__m256 vz_planeNormPos;
+	float x3[6], y3[6], z3[6];
 	__m256 vx_planeNorms;
 	__m256 vy_planeNorms;
 	__m256 vz_planeNorms;
