@@ -102,11 +102,12 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) const {
 	result = _mm256_add_ps(result, result_z);
 
 	__m256 cmp = _mm256_cmp_ps(result, _mm256_setzero_ps(), _CMP_GT_OQ);
+
 	// Early-out: if any dot > 0, the point is outside
 	if (!_mm256_testz_ps(cmp, cmp)) {
-		return false; // at least one plane failed
+		return false;
 	}
-	return true; // all planes passed
+	return true;
 		
 }
 
