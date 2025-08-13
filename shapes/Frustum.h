@@ -47,4 +47,7 @@ private:
 	__m256 vx_planeNorms;
 	__m256 vy_planeNorms;
 	__m256 vz_planeNorms;
+	__m256 vx_planeDiff;
+	__m256 vy_planeDiff;
+	__m256 vz_planeDiff;
 };

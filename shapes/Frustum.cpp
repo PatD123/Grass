@@ -36,6 +36,10 @@ void Frustum::update(const glm::vec3& camFront, const glm::vec3& camRight, const
 	vx_planeNorms = _mm256_loadu_ps(x3);
 	vy_planeNorms = _mm256_loadu_ps(y3);
 	vz_planeNorms = _mm256_loadu_ps(z3);
+
+	vx_planeDiff = _mm256_mul_ps(vx_planeNormPos, vx_planeNorms);
+	vy_planeDiff = _mm256_mul_ps(vy_planeNormPos, vy_planeNorms);
+	vz_planeDiff = _mm256_mul_ps(vz_planeNormPos, vz_planeNorms);
 }
 
 
@@ -90,14 +94,12 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) const {
 	__m256 vz_model = _mm256_set1_ps(model_p[2]);
 
 	// Sub normPos from model_p
-	__m256 result_x = _mm256_sub_ps(vx_model, vx_planeNormPos);
-	__m256 result_y = _mm256_sub_ps(vy_model, vy_planeNormPos);
-	__m256 result_z = _mm256_sub_ps(vz_model, vz_planeNormPos);
+	__m256 result_x = _mm256_fmsub_ps(vx_model, vx_planeNorms, vx_planeDiff);
+	__m256 result_y = _mm256_fmsub_ps(vy_model, vy_planeNorms, vy_planeDiff);
+	__m256 result_z = _mm256_fmsub_ps(vz_model, vz_planeNorms, vz_planeDiff);
 
-	// Fuse Multiply Add (FMA)
-	__m256 result = _mm256_mul_ps(result_x, vx_planeNorms);                  // x1*x2
-	result = _mm256_fmadd_ps(result_y, vy_planeNorms, result);               // x1*x2 + y1*y2
-	result = _mm256_fmadd_ps(result_z, vz_planeNorms, result);
+	__m256 result = _mm256_add_ps(result_x, result_y);
+	result = _mm256_add_ps(result, result_z);
 
 	__m256 cmp = _mm256_cmp_ps(result, _mm256_setzero_ps(), _CMP_GT_OQ);
 
