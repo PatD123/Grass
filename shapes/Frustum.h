@@ -39,11 +39,11 @@ private:
 	Plane m_botPlane;
 
 	// For simd_1
-	float x2[6], y2[6], z2[6];
+	alignas(32) float x2[6], y2[6], z2[6];
 	__m256 vx_planeNormPos;
 	__m256 vy_planeNormPos;
 	__m256 vz_planeNormPos;
-	float x3[6], y3[6], z3[6];
+	alignas(32) float x3[6], y3[6], z3[6];
 	__m256 vx_planeNorms;
 	__m256 vy_planeNorms;
 	__m256 vz_planeNorms;

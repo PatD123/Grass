@@ -22,9 +22,9 @@ void Frustum::update(const glm::vec3& camFront, const glm::vec3& camRight, const
 	x2[3] = m_rightPlane.m_normPos[0]; y2[3] = m_rightPlane.m_normPos[1]; z2[3] = m_rightPlane.m_normPos[2];
 	x2[4] = m_botPlane.m_normPos[0]; y2[4] = m_botPlane.m_normPos[1]; z2[4] = m_botPlane.m_normPos[2];
 	x2[5] = m_topPlane.m_normPos[0]; y2[5] = m_topPlane.m_normPos[1]; z2[5] = m_topPlane.m_normPos[2];
-	vx_planeNormPos = _mm256_loadu_ps(x2);
-	vy_planeNormPos = _mm256_loadu_ps(y2);
-	vz_planeNormPos = _mm256_loadu_ps(z2);
+	vx_planeNormPos = _mm256_load_ps(x2);
+	vy_planeNormPos = _mm256_load_ps(y2);
+	vz_planeNormPos = _mm256_load_ps(z2);
 
 	// Load norm vectors
 	x3[0] = m_nearPlane.m_norm[0];  y3[0] = m_nearPlane.m_norm[1];  z3[0] = m_nearPlane.m_norm[2];
@@ -33,9 +33,9 @@ void Frustum::update(const glm::vec3& camFront, const glm::vec3& camRight, const
 	x3[3] = m_rightPlane.m_norm[0]; y3[3] = m_rightPlane.m_norm[1]; z3[3] = m_rightPlane.m_norm[2];
 	x3[4] = m_botPlane.m_norm[0];   y3[4] = m_botPlane.m_norm[1];   z3[4] = m_botPlane.m_norm[2];
 	x3[5] = m_topPlane.m_norm[0];   y3[5] = m_topPlane.m_norm[1];   z3[5] = m_topPlane.m_norm[2];
-	vx_planeNorms = _mm256_loadu_ps(x3);
-	vy_planeNorms = _mm256_loadu_ps(y3);
-	vz_planeNorms = _mm256_loadu_ps(z3);
+	vx_planeNorms = _mm256_load_ps(x3);
+	vy_planeNorms = _mm256_load_ps(y3);
+	vz_planeNorms = _mm256_load_ps(z3);
 
 	vx_planeDiff = _mm256_mul_ps(vx_planeNormPos, vx_planeNorms);
 	vy_planeDiff = _mm256_mul_ps(vy_planeNormPos, vy_planeNorms);
@@ -102,11 +102,11 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) const {
 	result = _mm256_add_ps(result, result_z);
 
 	__m256 cmp = _mm256_cmp_ps(result, _mm256_setzero_ps(), _CMP_GT_OQ);
-
-	int mask = _mm256_movemask_ps(cmp);
-
-	// Only care about indices 2..7, so mask off bits 0 and 1
-	return (mask & ~0b11) == 0;
+	// Early-out: if any dot > 0, the point is outside
+	if (!_mm256_testz_ps(cmp, cmp)) {
+		return false; // at least one plane failed
+	}
+	return true; // all planes passed
 		
 }
 
