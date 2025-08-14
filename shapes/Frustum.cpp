@@ -89,9 +89,9 @@ bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) const {
 	// 1 Sub
 
 	// Broadcast model across all lanes
-	__m256 vx_model = _mm256_set1_ps(model_p[0]);
-	__m256 vy_model = _mm256_set1_ps(model_p[1]);
-	__m256 vz_model = _mm256_set1_ps(model_p[2]);
+	__m256 vx_model = _mm256_broadcast_ss(&model_p[0]);
+	__m256 vy_model = _mm256_broadcast_ss(&model_p[1]);
+	__m256 vz_model = _mm256_broadcast_ss(&model_p[2]);
 
 	// Sub normPos from model_p
 	__m256 result_x = _mm256_fmsub_ps(vx_model, vx_planeNorms, vx_planeDiff);

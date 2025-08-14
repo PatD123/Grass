@@ -38,3 +38,9 @@ static void printMatrix(const glm::mat4& m) {
 static unsigned getSeed() {
     return static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
 }
+
+static __m256 transformVectorized(glm::mat4& transform, glm::vec3& pos) {
+
+
+
+}
