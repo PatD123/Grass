@@ -8,7 +8,8 @@ Grass Simulation in OpenGL
 - **At ~125k blades, SIMD sits consistently at low 40s - mid 40s FPS. Scalar approach sinks to ~19 FPS. ▶️ Very good.**
 - [X] Multithread when frustum culling, then draw only the ones that are not culled out
 - :question: Apparently not great and doens't do as well as non-threaded.
-- [ ] Frustum culling is currently done per-blade. Probably should be altered to cull per tile.
+- [X] Frustum culling is currently done per-blade. Probably should be altered to cull per tile.
+- :question: Aesthetically, unpleasant.
 
 ## The journey
 
