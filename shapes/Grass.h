@@ -32,7 +32,11 @@ public:
 	glm::vec3 m_localPos;
 	std::vector<glm::vec3> m_vertices;
 	std::vector<glm::vec3> m_normals;
-	std::vector<glm::vec3> m_boundingQuad;
 	glm::mat4 m_transform;
 	float m_bladeHeight;
+
+	// For bounding quad SIMD
+	alignas(32) float m_x[4];
+	alignas(32) float m_y[4];
+	alignas(32) float m_z[4];
 };

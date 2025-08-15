@@ -45,10 +45,7 @@ void Frustum::update(const glm::vec3& camFront, const glm::vec3& camRight, const
 
 // Update frustum based on position.
 
-bool Frustum::check(const glm::vec3& p, const glm::mat4& modelTransform) const {
-
-	// Transform point
-	const glm::vec3 model_p = modelTransform * glm::vec4(p, 1);
+bool Frustum::check(const glm::vec3& model_p) const {
 
 	// SIMD here
 	// 6 of the same points.

@@ -16,7 +16,7 @@ class Frustum {
 public:
 	Frustum(float aspectRatio, float fov, float zNear, float zFar);
 
-	bool check(const glm::vec3& p, const glm::mat4& modelTransform) const;
+	bool check(const glm::vec3& model_p) const;
 
 	void update(const glm::vec3& camFront, const glm::vec3& camRight, const glm::vec3& camUp, const glm::vec3& camPos);
 

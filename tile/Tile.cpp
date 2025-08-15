@@ -50,16 +50,27 @@ void Tile::renderGrass(
 	{
 		Grass& g = m_blades[i];
 
-		// Frustum Culling 
-		bool flag = false;
-		for (glm::vec3& p : g.m_boundingQuad) {
-			if (!cam.m_frustum->check(p, g.m_transform)) {
-				flag = true;
-				break;
-			}
-		}
+		// SIMD matrix transforms
+		__m128 results[4];
+		__m128 x = _mm_load_ps(g.m_x);
+		__m128 y = _mm_load_ps(g.m_y);
+		__m128 z = _mm_load_ps(g.m_z);
+		transformQuad(results, x, y, z, g.m_transform);
 
-		if (flag) continue;
+		// Extract out results
+		float x_result[4], y_result[4], z_result[4];
+		_mm_store_ps(x_result, results[0]);
+		_mm_store_ps(y_result, results[1]);
+		_mm_store_ps(z_result, results[2]);
+
+		if (!cam.m_frustum->check(glm::vec3(x_result[0], y_result[0], z_result[0])))
+			continue;
+		if (!cam.m_frustum->check(glm::vec3(x_result[1], y_result[1], z_result[1])))
+			continue;
+		if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2])))
+			continue;
+		if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
+			continue;
 
 		glm::mat4 transform = proj_view * g.m_transform;
 		sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));

@@ -39,8 +39,13 @@ static unsigned getSeed() {
     return static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
 }
 
-static __m256 transformVectorized(glm::mat4& transform, glm::vec3& pos) {
-
-
-
+static void transformQuad(__m128 dest[4], const __m128 x, const __m128 y, const __m128 z, const glm::mat4& transform)
+{
+    for (size_t i = 0; i < 4; ++i) {
+        __m128 res = _mm_broadcast_ss(&transform[3][i]);
+        res = _mm_fmadd_ps(_mm_broadcast_ss(&transform[0][i]), x, res);
+        res = _mm_fmadd_ps(_mm_broadcast_ss(&transform[1][i]), y, res);
+        res = _mm_fmadd_ps(_mm_broadcast_ss(&transform[2][i]), z, res);
+        dest[i] = res;
+    }
 }

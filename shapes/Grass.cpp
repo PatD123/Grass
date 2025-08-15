@@ -75,14 +75,26 @@ void Grass::generateBlade(
 		m_normals.push_back(glm::cross(bladeSideDir, posBezier[i + 1].second));
 		m_vertices.push_back(negBezier[i + 1].first);
 		m_normals.push_back(glm::cross(bladeSideDir, negBezier[i + 1].second));
-
-		//std::cout << m_vertices.size() << std::endl;
 	}
 
 	// We need the bounding quad for frustum culling.
-	// Quad is from base of grass to tip of grass.
-	m_boundingQuad.push_back(negBezier[0].first);
-	m_boundingQuad.push_back(posBezier[0].first);
-	m_boundingQuad.push_back(negBezier[NUM_BEZIER_VERTS - 1].first);
-	m_boundingQuad.push_back(posBezier[NUM_BEZIER_VERTS - 1].first);
+	// Previously, I stored the vertices in a vector called boundinQuad, but
+	// bc we want to vectorize this, we might as well just store them as
+	// Structures of Arrays (SOA) beforehand.
+
+	m_x[0] = negBezier[0].first[0]; // First vertex in bounding quad
+	m_y[0] = negBezier[0].first[1];
+	m_z[0] = negBezier[0].first[2];
+
+	m_x[1] = posBezier[0].first[0]; // Second vertex in bounding quad
+	m_y[1] = posBezier[0].first[1];
+	m_z[1] = posBezier[0].first[2];
+
+	m_x[2] = negBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
+	m_y[2] = negBezier[NUM_BEZIER_VERTS - 1].first[1];
+	m_z[2] = negBezier[NUM_BEZIER_VERTS - 1].first[2];
+
+	m_x[3] = posBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
+	m_y[3] = posBezier[NUM_BEZIER_VERTS - 1].first[1];
+	m_z[3] = posBezier[NUM_BEZIER_VERTS - 1].first[2];
 }
