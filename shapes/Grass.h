@@ -29,6 +29,8 @@ public:
 		const float grassPatchRadius
 	);
 
+	void animate();
+
 	glm::vec3 m_localPos;
 	std::vector<glm::vec3> m_vertices;
 	std::vector<glm::vec3> m_normals;

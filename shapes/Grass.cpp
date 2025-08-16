@@ -98,3 +98,13 @@ void Grass::generateBlade(
 	m_y[3] = posBezier[NUM_BEZIER_VERTS - 1].first[1];
 	m_z[3] = posBezier[NUM_BEZIER_VERTS - 1].first[2];
 }
+
+void Grass::animate() {
+	//
+	// A couple of things
+	// - We have to change the amount we lean by.
+	// - Perlin dictates Wind, Wind dictates blade direction.
+	// - Each tile gets it's own Wind Direction, so blades in that
+	//   tile get this as its blade direction.
+	//
+}
