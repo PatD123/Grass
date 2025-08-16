@@ -29,6 +29,8 @@ void Grass::generateBlade(
 	glm::vec3 p1 = m_localPos + glm::vec3(0.0f, m_bladeHeight, 0.0f);
 	glm::vec3 p2 = p1 + m_bladeDir * m_bladeLean * m_bladeHeight; // Think about bladeHeight here --> Taller blades, bend more
 
+	makePersistentLength(p0, p1, p2, m_bladeHeight);
+
 	// Calculate and apply width vectors
 	glm::vec3 bladeSideDir = glm::normalize(glm::cross(m_bladeDir, YAXIS));
 	glm::vec3 p0_neg = p0 - bladeSideDir * m_bladeP0Width;
@@ -101,6 +103,8 @@ void Grass::animate() {
 	// - Perlin dictates Wind, Wind dictates blade direction.
 	// - Each tile gets it's own Wind Direction, so blades in that
 	//   tile get this as its blade direction.
+	// 
+	// Have Perlin determine blade rotation angle.
 	//
 
 	PerlinNoise2D pn;
@@ -109,7 +113,9 @@ void Grass::animate() {
 	// A single blade of grass is a bezier curve, out of 3 points.
 	glm::vec3 p0 = m_localPos;
 	glm::vec3 p1 = m_localPos + glm::vec3(0.0f, m_bladeHeight, 0.0f);
-	glm::vec3 p2 = p1 + m_bladeDir * (m_bladeLean + noise * 0.1f) * m_bladeHeight; // Think about bladeHeight here --> Taller blades, bend more
+	glm::vec3 p2 = p1 + m_bladeDir * (m_bladeLean + noise * 0.5f) * m_bladeHeight; // Think about bladeHeight here --> Taller blades, bend more
+
+	makePersistentLength(p0, p1, p2, m_bladeHeight);
 
 	// Calculate and apply width vectors
 	glm::vec3 bladeSideDir = glm::normalize(glm::cross(m_bladeDir, YAXIS));

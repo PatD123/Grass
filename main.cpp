@@ -95,7 +95,7 @@ int main()
 
     const int NUM_TILES_ROWS = 1;
     const int NUM_TILES_COLS = 1;
-    const int BLADES_PER_TILE = 10;
+    const int BLADES_PER_TILE = 50;
 
     std::vector<Tile> world;
     for (int i = 0; i < NUM_TILES_ROWS; i++) {
