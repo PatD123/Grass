@@ -72,6 +72,8 @@ void Tile::renderGrass(
 		if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
 			continue;
 
+		g.animate();
+
 		glm::mat4 transform = proj_view * g.m_transform;
 		sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
 		sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);

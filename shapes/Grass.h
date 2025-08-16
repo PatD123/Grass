@@ -11,6 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../common/utils.hpp"
+#include "../common/PerlinNoise.hpp"
 
 // CONSTS
 const static glm::vec3 YAXIS = glm::vec3(0.0, 1.0, 0.0);
@@ -32,10 +33,17 @@ public:
 	void animate();
 
 	glm::vec3 m_localPos;
+	glm::vec3 m_bladeWorldPosition;
+	glm::vec3 m_bladeDir;
+	float m_bladeHeight;
+	float m_bladeLean = 0.2;
+	float m_bladeP0Width = 0.08;
+	float m_bladeP1Width = 0.05;
+	float m_bladeP2Width = 0.0;
+
 	std::vector<glm::vec3> m_vertices;
 	std::vector<glm::vec3> m_normals;
 	glm::mat4 m_transform;
-	float m_bladeHeight;
 
 	// For bounding quad SIMD
 	alignas(32) float m_x[4];
