@@ -109,6 +109,10 @@ void Grass::animate() {
 
 	PerlinNoise2D pn;
 	float noise = pn.eval(glm::vec2(glfwGetTime() * 0.35) + glm::vec2(m_bladeWorldPosition.x, m_bladeWorldPosition.z));
+	float rot = pn.eval(glm::vec2(glfwGetTime()) * 0.05f + 0.05f * glm::vec2(m_bladeWorldPosition.x, m_bladeWorldPosition.z));
+	rot = (rot + 1.0f) * std::_Pi_val;
+
+	m_bladeDir = glm::vec3(glm::cos(rot), 0.0, glm::sin(rot));
 
 	// A single blade of grass is a bezier curve, out of 3 points.
 	glm::vec3 p0 = m_localPos;
