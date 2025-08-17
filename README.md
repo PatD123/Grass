@@ -1,7 +1,7 @@
 Grass Simulation in OpenGL
 
 ## TODO
-- [X] MORE Parallelizable MORE VECTORIZABLE!!!!
+- [X] MORE Parallelizable MORE Vectorizable!!!! (Below stats without animation).
 - 🤯 Learned to use AVX Intel Intrinsics.
 - **At ~20k blades, SIMD sits consistently at ~60 FPS. Scalar sits at low 40 - high 40s**
 - **At ~50k blades, SIMD sits consistently at high 50s FPS. Scalar approach sits at mid 40s FPS.**
@@ -12,6 +12,12 @@ Grass Simulation in OpenGL
 - :question: Aesthetically, unpleasant.
 
 ## The journey
+
+Very slow, but mobile little grasslets
+
+
+https://github.com/user-attachments/assets/affd862a-f8d6-45d1-84f0-25662e096b38
+
 
 Below is 125k blades of grass + SIMD Frustum Culling
 
