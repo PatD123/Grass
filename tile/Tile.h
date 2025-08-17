@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <stdlib.h>
 #include <random>
@@ -21,8 +23,7 @@ public:
 		glm::vec3 tileNorm,
 		float tileMinHeight,
 		float tileMaxHeight,
-		float tileMaxLean,
-		float tileRadius
+		float tileMaxLean
 	);
 
 	void generateGrass();
@@ -43,7 +44,6 @@ public:
 	float m_tileMinHeight;
 	float m_tileMaxHeight;
 	float m_tileMaxLean;
-	float m_tileRadius;
 
 	std::vector<Grass> m_blades;
 };

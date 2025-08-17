@@ -13,8 +13,7 @@ void Grass::generateBlade(
 	const glm::vec3& grassPatchNorm,
 	const float grassPatchMinHeight,
 	const float grassPatchMaxHeight,
-	const float grassPatchMaxLean,
-	const float grassPatchRadius
+	const float grassPatchMaxLean
 ) {
 
 	// Get new grass pos;

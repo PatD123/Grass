@@ -6,12 +6,10 @@ Tile::Tile(
 	glm::vec3 tileNorm,
 	float tileMinHeight,
 	float tileMaxHeight,
-	float tileMaxLean,
-	float tileRadius
+	float tileMaxLean
 ) :
 	m_bladesPerTile(bladesPerTile), m_tilePos(tilePos), m_tileNorm(tileNorm),
-	m_tileMinHeight(tileMinHeight), m_tileMaxHeight(tileMaxHeight), m_tileMaxLean(tileMaxLean),
-	m_tileRadius(tileRadius)
+	m_tileMinHeight(tileMinHeight), m_tileMaxHeight(tileMaxHeight), m_tileMaxLean(tileMaxLean)
 {}
 
 void Tile::generateGrass() {
@@ -19,7 +17,7 @@ void Tile::generateGrass() {
 
 	for (int i = 0; i < m_bladesPerTile; ++i) {
 		Grass g;
-		g.generateBlade(m_tilePos, m_tileNorm, m_tileMinHeight, m_tileMaxHeight, m_tileMaxLean, m_tileRadius);
+		g.generateBlade(m_tilePos, m_tileNorm, m_tileMinHeight, m_tileMaxHeight, m_tileMaxLean);
 		m_blades.push_back(g);
 	}
 }
@@ -79,8 +77,8 @@ void Tile::renderGrass(
 		// Computing direction of grass
 		float rot = pn.eval(
 			glm::vec2(
-				g.m_bladeWorldPosition.x * 0.8f,
-				g.m_bladeWorldPosition.z * 0.8f + glfwGetTime() * 0.3f
+				g.m_bladeWorldPosition.x * 0.4f,
+				g.m_bladeWorldPosition.z * 0.4f + glfwGetTime() * 0.5f
 			)
 		);
 		rot = (rot + 1.0f) * std::_Pi_val;
