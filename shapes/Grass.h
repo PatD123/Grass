@@ -41,6 +41,9 @@ public:
 	float m_bladeP1Width = 0.05;
 	float m_bladeP2Width = 0.0;
 
+	std::vector<float> m_tSeq;
+	std::pair<glm::vec3, glm::vec3> m_negBezier[NUM_BEZIER_VERTS];
+	std::pair<glm::vec3, glm::vec3> m_posBezier[NUM_BEZIER_VERTS];
 	std::vector<glm::vec3> m_vertices;
 	std::vector<glm::vec3> m_normals;
 	glm::mat4 m_transform;

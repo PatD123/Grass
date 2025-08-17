@@ -72,11 +72,25 @@ void Tile::renderGrass(
 		if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
 			continue;
 
-		g.animate();
+		//g.animate();
+
+		PerlinNoise2D pn;
+
+		// Computing direction of grass
+		float rot = pn.eval(
+			glm::vec2(
+				g.m_bladeWorldPosition.x * 0.8f,
+				g.m_bladeWorldPosition.z * 0.8f + glfwGetTime() * 0.4f
+			)
+		);
+		rot = (rot + 1.0f) * std::_Pi_val;
+		glm::mat4 windDir = glm::rotate(glm::mat4(), rot, YAXIS);
 
 		glm::mat4 transform = proj_view * g.m_transform;
 		sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
 		sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);
+		sh.setUniformMat4fv(shaderProgram, "WindDir", glm::value_ptr(windDir));
+		sh.setUniform1f(shaderProgram, "Time", glfwGetTime());
 
 		// Draw
 		sh.useShaderProgram(shaderProgram);

@@ -2,7 +2,11 @@
 
 static std::mt19937 GENERATOR(getSeed());
 
-Grass::Grass(glm::vec3 localPos) : m_localPos(localPos) {}
+Grass::Grass(glm::vec3 localPos) : m_localPos(localPos) 
+{
+	for (int i = 0; i <= NUM_BEZIER_VERTS - 1; i++)
+		m_tSeq.push_back(static_cast<float>(i) / static_cast<float>(NUM_BEZIER_VERTS - 1));
+}
 
 void Grass::generateBlade(
 	const glm::vec3& grassPatchPos,
@@ -20,7 +24,7 @@ void Grass::generateBlade(
 
 	// Some random values for our grass at the moment.
 	dis = std::uniform_real_distribution<>(-1.0, 1.0);
-	m_bladeDir = glm::normalize(glm::vec3(dis(GENERATOR), 0.0f, dis(GENERATOR)));
+	m_bladeDir = glm::vec3(1.0f, 0.0f, 0.0f);
 	dis = std::uniform_real_distribution<>(grassPatchMinHeight, grassPatchMaxHeight);
 	m_bladeHeight = dis(GENERATOR);
 
@@ -40,38 +44,31 @@ void Grass::generateBlade(
 	glm::vec3 p2_neg = p2 - bladeSideDir * m_bladeP2Width;
 	glm::vec3 p2_pos = p2 + bladeSideDir * m_bladeP1Width;
 
-	std::vector<float> tSeq;
-	std::pair<glm::vec3, glm::vec3> negBezier[NUM_BEZIER_VERTS];
-	std::pair<glm::vec3, glm::vec3> posBezier[NUM_BEZIER_VERTS];
-
-	for (int i = 0; i <= NUM_BEZIER_VERTS - 1; i++)
-		tSeq.push_back(static_cast<float>(i) / static_cast<float>(NUM_BEZIER_VERTS - 1));
-
 	for (int i = 0; i < NUM_BEZIER_VERTS; i++) {
-		float t = tSeq[i];
-		negBezier[i] = bezier(p0_neg, p1_neg, p2_neg, t);
-		posBezier[i] = bezier(p0_pos, p1_pos, p2_pos, t);
+		float t = m_tSeq[i];
+		m_negBezier[i] = bezier(p0_neg, p1_neg, p2_neg, t);
+		m_posBezier[i] = bezier(p0_pos, p1_pos, p2_pos, t);
 
-		m_bladeHeight = glm::max(m_bladeHeight, posBezier[i].first[1]);
+		m_bladeHeight = glm::max(m_bladeHeight, m_posBezier[i].first[1]);
 	}
 
 	// CCW order
 	for (int i = 0; i < NUM_BEZIER_VERTS - 1; i++) {
 		// Neg tri
-		m_vertices.push_back(negBezier[i].first);
-		m_normals.push_back(glm::cross(bladeSideDir, negBezier[i].second));
-		m_vertices.push_back(posBezier[i].first);
-		m_normals.push_back(glm::cross(bladeSideDir, posBezier[i].second));
-		m_vertices.push_back(negBezier[i + 1].first);
-		m_normals.push_back(glm::cross(bladeSideDir, negBezier[i + 1].second));
+		m_vertices.push_back(m_negBezier[i].first);
+		m_normals.push_back(glm::cross(bladeSideDir, m_negBezier[i].second));
+		m_vertices.push_back(m_posBezier[i].first);
+		m_normals.push_back(glm::cross(bladeSideDir, m_posBezier[i].second));
+		m_vertices.push_back(m_negBezier[i + 1].first);
+		m_normals.push_back(glm::cross(bladeSideDir, m_negBezier[i + 1].second));
 
 		// Pos tri
-		m_vertices.push_back(posBezier[i].first);
-		m_normals.push_back(glm::cross(bladeSideDir, posBezier[i].second));
-		m_vertices.push_back(posBezier[i + 1].first);
-		m_normals.push_back(glm::cross(bladeSideDir, posBezier[i + 1].second));
-		m_vertices.push_back(negBezier[i + 1].first);
-		m_normals.push_back(glm::cross(bladeSideDir, negBezier[i + 1].second));
+		m_vertices.push_back(m_posBezier[i].first);
+		m_normals.push_back(glm::cross(bladeSideDir, m_posBezier[i].second));
+		m_vertices.push_back(m_posBezier[i + 1].first);
+		m_normals.push_back(glm::cross(bladeSideDir, m_posBezier[i + 1].second));
+		m_vertices.push_back(m_negBezier[i + 1].first);
+		m_normals.push_back(glm::cross(bladeSideDir, m_negBezier[i + 1].second));
 	}
 
 	// We need the bounding quad for frustum culling.
@@ -79,21 +76,21 @@ void Grass::generateBlade(
 	// bc we want to vectorize this, we might as well just store them as
 	// Structures of Arrays (SOA) beforehand.
 
-	m_x[0] = negBezier[0].first[0]; // First vertex in bounding quad
-	m_y[0] = negBezier[0].first[1];
-	m_z[0] = negBezier[0].first[2];
+	m_x[0] = m_negBezier[0].first[0]; // First vertex in bounding quad
+	m_y[0] = m_negBezier[0].first[1];
+	m_z[0] = m_negBezier[0].first[2];
 
-	m_x[1] = posBezier[0].first[0]; // Second vertex in bounding quad
-	m_y[1] = posBezier[0].first[1];
-	m_z[1] = posBezier[0].first[2];
+	m_x[1] = m_posBezier[0].first[0]; // Second vertex in bounding quad
+	m_y[1] = m_posBezier[0].first[1];
+	m_z[1] = m_posBezier[0].first[2];
 
-	m_x[2] = negBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
-	m_y[2] = negBezier[NUM_BEZIER_VERTS - 1].first[1];
-	m_z[2] = negBezier[NUM_BEZIER_VERTS - 1].first[2];
+	m_x[2] = m_negBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
+	m_y[2] = m_negBezier[NUM_BEZIER_VERTS - 1].first[1];
+	m_z[2] = m_negBezier[NUM_BEZIER_VERTS - 1].first[2];
 
-	m_x[3] = posBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
-	m_y[3] = posBezier[NUM_BEZIER_VERTS - 1].first[1];
-	m_z[3] = posBezier[NUM_BEZIER_VERTS - 1].first[2];
+	m_x[3] = m_posBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
+	m_y[3] = m_posBezier[NUM_BEZIER_VERTS - 1].first[1];
+	m_z[3] = m_posBezier[NUM_BEZIER_VERTS - 1].first[2];
 }
 
 void Grass::animate() {
@@ -105,6 +102,9 @@ void Grass::animate() {
 	//   tile get this as its blade direction.
 	// 
 	// Have Perlin determine blade rotation angle.
+	// 
+	// Have that swaying look from the video
+	// - It says you'll need a per-blade hash.
 	//
 
 	PerlinNoise2D pn;
@@ -117,7 +117,7 @@ void Grass::animate() {
 	// A single blade of grass is a bezier curve, out of 3 points.
 	glm::vec3 p0 = m_localPos;
 	glm::vec3 p1 = m_localPos + glm::vec3(0.0f, m_bladeHeight, 0.0f);
-	glm::vec3 p2 = p1 + m_bladeDir * (m_bladeLean + noise * 0.5f) * m_bladeHeight; // Think about bladeHeight here --> Taller blades, bend more
+	glm::vec3 p2 = p1 + m_bladeDir * (m_bladeLean + noise * 0.8f) * m_bladeHeight; // Think about bladeHeight here --> Taller blades, bend more
 
 	makePersistentLength(p0, p1, p2, m_bladeHeight);
 
@@ -130,38 +130,31 @@ void Grass::animate() {
 	glm::vec3 p2_neg = p2 - bladeSideDir * m_bladeP2Width;
 	glm::vec3 p2_pos = p2 + bladeSideDir * m_bladeP1Width;
 
-	std::vector<float> tSeq;
-	std::pair<glm::vec3, glm::vec3> negBezier[NUM_BEZIER_VERTS];
-	std::pair<glm::vec3, glm::vec3> posBezier[NUM_BEZIER_VERTS];
-
-	for (int i = 0; i <= NUM_BEZIER_VERTS - 1; i++)
-		tSeq.push_back(static_cast<float>(i) / static_cast<float>(NUM_BEZIER_VERTS - 1));
-
 	for (int i = 0; i < NUM_BEZIER_VERTS; i++) {
-		float t = tSeq[i];
-		negBezier[i] = bezier(p0_neg, p1_neg, p2_neg, t);
-		posBezier[i] = bezier(p0_pos, p1_pos, p2_pos, t);
+		float t = m_tSeq[i];
+		m_negBezier[i] = bezier(p0_neg, p1_neg, p2_neg, t);
+		m_posBezier[i] = bezier(p0_pos, p1_pos, p2_pos, t);
 
-		m_bladeHeight = glm::max(m_bladeHeight, posBezier[i].first[1]);
+		m_bladeHeight = glm::max(m_bladeHeight, m_posBezier[i].first[1]);
 	}
 
 	// CCW order
 	for (int i = 0; i < NUM_BEZIER_VERTS - 1; i++) {
 		// Neg tri
-		m_vertices[6 * i] = negBezier[i].first;
-		m_normals[6 * i] = glm::cross(bladeSideDir, negBezier[i].second);
-		m_vertices[6 * i + 1] = posBezier[i].first;
-		m_normals[6 * i + 1] = glm::cross(bladeSideDir, posBezier[i].second);
-		m_vertices[6 * i + 2] = negBezier[i + 1].first;
-		m_normals[6 * i + 2] = glm::cross(bladeSideDir, negBezier[i + 1].second);
+		m_vertices[6 * i] = m_negBezier[i].first;
+		m_normals[6 * i] = glm::cross(bladeSideDir, m_negBezier[i].second);
+		m_vertices[6 * i + 1] = m_posBezier[i].first;
+		m_normals[6 * i + 1] = glm::cross(bladeSideDir, m_posBezier[i].second);
+		m_vertices[6 * i + 2] = m_negBezier[i + 1].first;
+		m_normals[6 * i + 2] = glm::cross(bladeSideDir, m_negBezier[i + 1].second);
 
 		// Pos tri
-		m_vertices[6 * i + 3] = posBezier[i].first;
-		m_normals[6 * i + 3] = glm::cross(bladeSideDir, posBezier[i].second);
-		m_vertices[6 * i + 4] = posBezier[i + 1].first;
-		m_normals[6 * i + 4] = glm::cross(bladeSideDir, posBezier[i + 1].second);
-		m_vertices[6 * i + 5] = negBezier[i + 1].first;
-		m_normals[6 * i + 5] = glm::cross(bladeSideDir, negBezier[i + 1].second);
+		m_vertices[6 * i + 3] = m_posBezier[i].first;
+		m_normals[6 * i + 3] = glm::cross(bladeSideDir, m_posBezier[i].second);
+		m_vertices[6 * i + 4] = m_posBezier[i + 1].first;
+		m_normals[6 * i + 4] = glm::cross(bladeSideDir, m_posBezier[i + 1].second);
+		m_vertices[6 * i + 5] = m_negBezier[i + 1].first;
+		m_normals[6 * i + 5] = glm::cross(bladeSideDir, m_negBezier[i + 1].second);
 	}
 
 	// We need the bounding quad for frustum culling.
@@ -169,20 +162,20 @@ void Grass::animate() {
 	// bc we want to vectorize this, we might as well just store them as
 	// Structures of Arrays (SOA) beforehand.
 
-	m_x[0] = negBezier[0].first[0]; // First vertex in bounding quad
-	m_y[0] = negBezier[0].first[1];
-	m_z[0] = negBezier[0].first[2];
+	//m_x[0] = m_negBezier[0].first[0]; // First vertex in bounding quad
+	//m_y[0] = m_negBezier[0].first[1];
+	//m_z[0] = m_negBezier[0].first[2];
 
-	m_x[1] = posBezier[0].first[0]; // Second vertex in bounding quad
-	m_y[1] = posBezier[0].first[1];
-	m_z[1] = posBezier[0].first[2];
+	//m_x[1] = m_posBezier[0].first[0]; // Second vertex in bounding quad
+	//m_y[1] = m_posBezier[0].first[1];
+	//m_z[1] = m_posBezier[0].first[2];
 
-	m_x[2] = negBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
-	m_y[2] = negBezier[NUM_BEZIER_VERTS - 1].first[1];
-	m_z[2] = negBezier[NUM_BEZIER_VERTS - 1].first[2];
+	//m_x[2] = m_negBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
+	//m_y[2] = m_negBezier[NUM_BEZIER_VERTS - 1].first[1];
+	//m_z[2] = m_negBezier[NUM_BEZIER_VERTS - 1].first[2];
 
-	m_x[3] = posBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
-	m_y[3] = posBezier[NUM_BEZIER_VERTS - 1].first[1];
-	m_z[3] = posBezier[NUM_BEZIER_VERTS - 1].first[2];
+	//m_x[3] = m_posBezier[NUM_BEZIER_VERTS - 1].first[0]; // Third vertex in bounding quad
+	//m_y[3] = m_posBezier[NUM_BEZIER_VERTS - 1].first[1];
+	//m_z[3] = m_posBezier[NUM_BEZIER_VERTS - 1].first[2];
 
 }
