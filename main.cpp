@@ -93,9 +93,9 @@ int main()
     float grassPatchMaxLean = 0.8f;
     float grassPatchRadius = 0.5f;
 
-    const int NUM_TILES_ROWS = 10;
-    const int NUM_TILES_COLS = 10;
-    const int BLADES_PER_TILE = 50;
+    const int NUM_TILES_ROWS = 3;
+    const int NUM_TILES_COLS = 3;
+    const int BLADES_PER_TILE = 200;
 
     std::vector<Tile> world;
     for (int i = 0; i < NUM_TILES_ROWS; i++) {
