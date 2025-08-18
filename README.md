@@ -13,6 +13,12 @@ Grass Simulation in OpenGL
 
 ## The journey
 
+Enabled Instanced Grasslets
+
+
+https://github.com/user-attachments/assets/da0bd4be-fa04-43b3-b21f-f4289eab1e18
+
+
 Very slow, but mobile little grasslets
 
 
