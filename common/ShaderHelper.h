@@ -150,6 +150,13 @@ public:
 		glUseProgram(0);
 	}
 
+	void setUniform2fv(GLuint shaderProgram, const char* uniformName, const GLfloat* uniformValue) {
+		glUseProgram(shaderProgram);
+		GLuint loc = glGetUniformLocation(shaderProgram, uniformName);
+		glUniform2fv(loc, 1, uniformValue);
+		glUseProgram(0);
+	}
+
 	void setUniform3fv(GLuint shaderProgram, const char* uniformName, const GLfloat* uniformValue) {
 		glUseProgram(shaderProgram);
 		GLuint loc = glGetUniformLocation(shaderProgram, uniformName);

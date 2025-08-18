@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <stdlib.h>
 #include <random>
@@ -21,8 +23,7 @@ public:
 		glm::vec3 tileNorm,
 		float tileMinHeight,
 		float tileMaxHeight,
-		float tileMaxLean,
-		float tileRadius
+		float tileMaxLean
 	);
 
 	void generateGrass();
@@ -32,10 +33,10 @@ public:
 		const glm::mat4& proj_view,
 		ShaderHelper& sh,
 		GLuint shaderProgram,
-		GLuint VAO,
-		GLuint vertVBO,
-		GLuint normVBO
+		GLuint VAO
 	);
+
+	void animateGrass(const Camera& cam);
 
 	int m_bladesPerTile;
 	const glm::vec3 m_tilePos;
@@ -43,7 +44,14 @@ public:
 	float m_tileMinHeight;
 	float m_tileMaxHeight;
 	float m_tileMaxLean;
-	float m_tileRadius;
+
+	// Number of blades drawn per frame, after culling.
+	int m_numBladesDrawn = 0;
 
 	std::vector<Grass> m_blades;
+
+	// For moving to GPU
+	std::vector<glm::vec3> m_transforms;
+	std::vector<float> m_bladeDirs;
+	std::vector<float> m_bladeScalings;
 };

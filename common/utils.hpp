@@ -49,3 +49,22 @@ static void transformQuad(__m128 dest[4], const __m128 x, const __m128 y, const 
         dest[i] = res;
     }
 }
+
+static void makePersistentLength(glm::vec3& v0, glm::vec3& v1, glm::vec3& v2, float height)
+{
+    //Persistent length
+    glm::vec3 v01 = v1 - v0;
+    glm::vec3 v12 = v2 - v1;
+    float lv01 = glm::length(v01);
+    float lv12 = glm::length(v12);
+
+    float L1 = lv01 + lv12;
+    float L0 = glm::length(v2 - v0);
+    float L = (2.0f * L0 + L1) / 3.0f; //http://steve.hollasch.net/cgindex/curves/cbezarclen.html
+
+    float ldiff = height / L;
+    v01 = v01 * ldiff;
+    v12 = v12 * ldiff;
+    v1 = v0 + v01;
+    v2 = v1 + v12;
+}
