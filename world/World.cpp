@@ -23,17 +23,15 @@ World::World() {
     glEnableVertexAttribArray(normLocation);       // aNormal
     glVertexAttribPointer(normLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
     glBindBuffer(GL_ARRAY_BUFFER, GrassTransformVBO);
-    for (int i = 0; i < 4; i++) {
-        glEnableVertexAttribArray(transformLocation + i);       // aTransform
-        glVertexAttribPointer(transformLocation + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(i * sizeof(glm::vec4)));
-        glVertexAttribDivisor(transformLocation + i, 1);
-    }
+    glEnableVertexAttribArray(transformLocation);
+    glVertexAttribPointer(transformLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
+    glVertexAttribDivisor(transformLocation, 1);
+
     glBindBuffer(GL_ARRAY_BUFFER, GrassBladeDirVBO);
-    for (int i = 0; i < 4; i++) {
-        glEnableVertexAttribArray(bladeDirLocation + i);       // aBladeDir
-        glVertexAttribPointer(bladeDirLocation + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(i * sizeof(glm::vec4)));
-        glVertexAttribDivisor(bladeDirLocation + i, 1);
-    }
+    glEnableVertexAttribArray(bladeDirLocation);       // aBladeDir
+    glVertexAttribPointer(bladeDirLocation, 1, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT), (void*)0);
+    glVertexAttribDivisor(bladeDirLocation, 1);
+
     glBindBuffer(GL_ARRAY_BUFFER, GrassBladeScalingVBO);
     glEnableVertexAttribArray(bladeScalingLocation);       // aBladeScaling
     glVertexAttribPointer(bladeScalingLocation, 1, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT), (void*)0);
@@ -88,23 +86,26 @@ void World::renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram) {
 
 void World::moveTileToGPU(const Tile& t) {
     // Move all transforms into the VBO beforehand
-    std::vector<glm::mat4> transforms;
-    std::vector<glm::mat4> bladeDirs;
+    std::vector<glm::vec3> transforms;
+    std::vector<float> bladeDirs;
     std::vector<float> bladeScalings;
     for (const Grass& g : t.m_blades) {
 
         if (g.m_culled) continue;
 
-        transforms.push_back(g.m_transform);
+        transforms.push_back(g.m_bladeWorldPosition);
         bladeDirs.push_back(g.m_bladeDir);
         bladeScalings.push_back(g.m_bladeScaling);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, GrassTransformVBO);
-    glBufferData(GL_ARRAY_BUFFER, transforms.size() * sizeof(glm::mat4), transforms.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, transforms.size() * sizeof(glm::vec3), transforms.data(), GL_STATIC_DRAW);
+
+
     glBindBuffer(GL_ARRAY_BUFFER, GrassBladeDirVBO);
-    glBufferData(GL_ARRAY_BUFFER, bladeDirs.size() * sizeof(glm::mat4), bladeDirs.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, bladeDirs.size() * sizeof(float), bladeDirs.data(), GL_STATIC_DRAW);
+
     glBindBuffer(GL_ARRAY_BUFFER, GrassBladeScalingVBO);
-    glBufferData(GL_ARRAY_BUFFER, bladeScalings.size() * sizeof(glm::vec3), bladeScalings.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, bladeScalings.size() * sizeof(float), bladeScalings.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

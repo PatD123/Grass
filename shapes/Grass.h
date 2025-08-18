@@ -31,7 +31,7 @@ public:
 
 	glm::vec3 m_localPos;
 	glm::vec3 m_bladeWorldPosition;
-	glm::mat4 m_bladeDir;
+	float m_bladeDir; // Radians for which direction the wind is blowing.
 	float m_bladeScaling;
 	float m_bladeHeight = 0.7;
 	float m_bladeLean = 0.3;

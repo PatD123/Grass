@@ -115,7 +115,6 @@ void Tile::animateGrass(const Camera& cam) {
 				g.m_bladeWorldPosition.z * 0.4f + glfwGetTime() * 0.5f
 			)
 		);
-		rot = (rot + 1.0f) * std::_Pi_val;
-		g.m_bladeDir = glm::rotate(glm::mat4(), rot, YAXIS);
+		g.m_bladeDir = (rot + 1.0f) * std::_Pi_val;
 	}
 }

@@ -2,8 +2,8 @@
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
-layout(location = 2) in mat4 aTransform;
-layout(location = 6) in mat4 aBladeDir;
+layout(location = 2) in vec3 aTransform;
+layout(location = 6) in float aBladeDir;
 layout(location = 10) in float aBladeScaling;
 
 out vec3 Normal;
@@ -13,8 +13,64 @@ uniform mat4 Proj_View;
 uniform float BladeHeight;
 uniform float Time;
 
-// Simplex 2D noise
-//
+mat4 translationMatrix(vec3 t);
+mat4 rotationY(float angle);
+vec3 permute(vec3 x);
+float snoise(vec2 v);
+float remap(float v, float inMin, float inMax, float outMin, float outMax);
+float easeIn(float x, float k);
+
+void main()
+{
+    // Init
+    vec3 pos = aPos;
+    pos.y *= aBladeScaling;
+    float bladeHeight = BladeHeight * aBladeScaling;
+    mat4 transform = translationMatrix(aTransform);
+    mat4 bladeDir = rotationY(aBladeDir);
+
+    // Allows us to "hash" per vertex
+
+    RelativeHeight = pos.y / bladeHeight;
+
+    // The taller it is, the more we lean.
+
+    float windNoiseSample = snoise(vec2(pos.xz * 0.8 + Time * 0.05));
+    float windLeanAngle = remap(windNoiseSample, -1.0, 1.0, 0.25, 0.40);
+    windLeanAngle = easeIn(windLeanAngle, 2.0) * 1.25;
+    float bend = RelativeHeight * windLeanAngle;
+
+    // Transform position: only offset x/z, not y
+
+    vec3 windOffset = (bladeDir * vec4(1.0, 0.0, 1.0, 0.0)).xyz * bend;
+
+    vec4 worldPos = bladeDir * vec4(pos, 1.0) + vec4(windOffset, 1.0);
+
+    gl_Position = Proj_View * transform * worldPos;
+    Normal = aNormal;
+}
+
+mat4 translationMatrix(vec3 t) {
+    return mat4(
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        t.x, t.y, t.z, 1.0
+    );
+}
+
+mat4 rotationY(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+
+    return mat4(
+         c, 0.0,  s, 0.0,
+         0.0, 1.0, 0.0, 0.0,
+        -s, 0.0,  c, 0.0,
+         0.0, 0.0, 0.0, 1.0
+    );
+}
+
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 
 float snoise(vec2 v){
@@ -44,39 +100,10 @@ float snoise(vec2 v){
   return 130.0 * dot(m, g);
 }
 
-// Remap
 float remap(float v, float inMin, float inMax, float outMin, float outMax) {
     return outMin + (v - inMin) * (outMax - outMin) / (inMax - inMin);
 }
 
-// Ease-in curve
 float easeIn(float x, float k) {
     return pow(x, k);
-}
-
-void main()
-{
-    vec3 pos = aPos;
-    float bladeHeight = BladeHeight * aBladeScaling;
-    pos.y *= aBladeScaling;
-
-    // Allows us to "hash" per vertex
-
-    RelativeHeight = pos.y / bladeHeight;
-
-    // The taller it is, the more we lean.
-
-    float windNoiseSample = snoise(vec2(pos.xz * 0.8 + Time * 0.05));
-    float windLeanAngle = remap(windNoiseSample, -1.0, 1.0, 0.25, 0.40);
-    windLeanAngle = easeIn(windLeanAngle, 2.0) * 1.25;
-    float bend = RelativeHeight * windLeanAngle;
-
-    // Transform position: only offset x/z, not y
-
-    vec3 windOffset = (aBladeDir * vec4(1.0, 0.0, 1.0, 0.0)).xyz * bend;
-
-    vec4 worldPos = aBladeDir * vec4(pos, 1.0) + vec4(windOffset, 1.0);
-
-    gl_Position = Proj_View * aTransform * worldPos;
-    Normal = aNormal;
 }
