@@ -27,9 +27,7 @@ void Tile::renderGrass(
 	const glm::mat4& proj_view,
 	ShaderHelper& sh, 
 	GLuint shaderProgram,
-	GLuint VAO,
-	GLuint vertVBO,
-	GLuint normVBO
+	GLuint VAO
 ) {
 	glBindVertexArray(VAO);
 
@@ -44,35 +42,73 @@ void Tile::renderGrass(
 		increment = 6;
 	else increment = NUM_BEZIER_VERTS;
 
-	for (int i = 0; i<m_bladesPerTile; i+=increment)
-	{
+	sh.setUniformMat4fv(shaderProgram, "Proj_View", glm::value_ptr(proj_view));
+	sh.setUniform1f(shaderProgram, "Time", glfwGetTime());
+
+	// Draw
+	sh.useShaderProgram(shaderProgram);
+	glDrawArraysInstanced(GL_TRIANGLES, 0, 84, m_blades.size());
+
+	//for (int i = 0; i<m_bladesPerTile; i+=increment)
+	//{
+	//	Grass& g = m_blades[i];
+
+	//	// SIMD matrix transforms
+	//	__m128 results[4];
+	//	__m128 x = _mm_load_ps(g.m_x);
+	//	__m128 y = _mm_load_ps(g.m_y);
+	//	__m128 z = _mm_load_ps(g.m_z);
+	//	transformQuad(results, x, y, z, g.m_transform);
+
+	//	// Extract out results
+	//	float x_result[4], y_result[4], z_result[4];
+	//	_mm_store_ps(x_result, results[0]);
+	//	_mm_store_ps(y_result, results[1]);
+	//	_mm_store_ps(z_result, results[2]);
+
+	//	if (!cam.m_frustum->check(glm::vec3(x_result[0], y_result[0], z_result[0])))
+	//		continue;
+	//	if (!cam.m_frustum->check(glm::vec3(x_result[1], y_result[1], z_result[1])))
+	//		continue;
+	//	if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2])))
+	//		continue;
+	//	if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
+	//		continue;
+
+	//	//g.animate();
+
+	//	PerlinNoise2D pn;
+
+	//	// Computing direction of grass
+	//	float rot = pn.eval(
+	//		glm::vec2(
+	//			g.m_bladeWorldPosition.x * 0.4f,
+	//			g.m_bladeWorldPosition.z * 0.4f + glfwGetTime() * 0.5f
+	//		)
+	//	);
+	//	rot = (rot + 1.0f) * std::_Pi_val;
+	//	glm::mat4 windDir = glm::rotate(glm::mat4(), rot, YAXIS);
+
+	//	glm::mat4 transform = proj_view * g.m_transform;
+	//	sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
+	//	sh.setUniformMat4fv(shaderProgram, "WindDir", glm::value_ptr(windDir));
+	//	sh.setUniform1f(shaderProgram, "Time", glfwGetTime());
+
+	//	// Draw
+	//	sh.useShaderProgram(shaderProgram);
+	//	glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
+	//}
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Tile::animateGrass() {
+	PerlinNoise2D pn;
+
+	int increment = 1;
+	for (int i = 0; i < m_bladesPerTile; i += increment) {
 		Grass& g = m_blades[i];
-
-		// SIMD matrix transforms
-		__m128 results[4];
-		__m128 x = _mm_load_ps(g.m_x);
-		__m128 y = _mm_load_ps(g.m_y);
-		__m128 z = _mm_load_ps(g.m_z);
-		transformQuad(results, x, y, z, g.m_transform);
-
-		// Extract out results
-		float x_result[4], y_result[4], z_result[4];
-		_mm_store_ps(x_result, results[0]);
-		_mm_store_ps(y_result, results[1]);
-		_mm_store_ps(z_result, results[2]);
-
-		if (!cam.m_frustum->check(glm::vec3(x_result[0], y_result[0], z_result[0])))
-			continue;
-		if (!cam.m_frustum->check(glm::vec3(x_result[1], y_result[1], z_result[1])))
-			continue;
-		if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2])))
-			continue;
-		if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
-			continue;
-
-		//g.animate();
-
-		PerlinNoise2D pn;
 
 		// Computing direction of grass
 		float rot = pn.eval(
@@ -82,26 +118,8 @@ void Tile::renderGrass(
 			)
 		);
 		rot = (rot + 1.0f) * std::_Pi_val;
-		glm::mat4 windDir = glm::rotate(glm::mat4(), rot, YAXIS);
-
-		glm::mat4 transform = proj_view * g.m_transform;
-		sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
-		sh.setUniform1f(shaderProgram, "BladeHeight", g.m_bladeHeight);
-		sh.setUniformMat4fv(shaderProgram, "WindDir", glm::value_ptr(windDir));
-		sh.setUniform1f(shaderProgram, "Time", glfwGetTime());
-
-		// Draw
-		sh.useShaderProgram(shaderProgram);
-		glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
-		glBufferData(GL_ARRAY_BUFFER, g.m_vertices.size() * sizeof(glm::vec3), g.m_vertices.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, normVBO);
-		glBufferData(GL_ARRAY_BUFFER, g.m_normals.size() * sizeof(glm::vec3), g.m_normals.data(), GL_STATIC_DRAW);
-		glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
+		g.m_bladeDir = glm::rotate(glm::mat4(), rot, YAXIS);
 	}
 
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
 }
-
-
-

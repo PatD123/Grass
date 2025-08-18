@@ -2,12 +2,14 @@
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
+layout(location = 2) in mat4 aTransform;
+layout(location = 6) in mat4 aBladeDir;
+layout(location = 10) in float aBladeScaling;
 
 out vec3 Normal;
 out float RelativeHeight;
 
-uniform mat4 Transform;
-uniform mat4 WindDir;
+uniform mat4 Proj_View;
 uniform float BladeHeight;
 uniform float Time;
 
@@ -54,23 +56,27 @@ float easeIn(float x, float k) {
 
 void main()
 {
+    vec3 pos = aPos;
+    float bladeHeight = BladeHeight * aBladeScaling;
+    pos.y *= aBladeScaling;
+
     // Allows us to "hash" per vertex
 
-    RelativeHeight = aPos.y / BladeHeight;
+    RelativeHeight = pos.y / bladeHeight;
 
     // The taller it is, the more we lean.
 
-    float windNoiseSample = snoise(vec2(aPos.xz * 0.8 + Time * 0.05));
+    float windNoiseSample = snoise(vec2(pos.xz * 0.8 + Time * 0.05));
     float windLeanAngle = remap(windNoiseSample, -1.0, 1.0, 0.25, 0.40);
     windLeanAngle = easeIn(windLeanAngle, 2.0) * 1.25;
     float bend = RelativeHeight * windLeanAngle;
 
     // Transform position: only offset x/z, not y
 
-    vec3 windOffset = (WindDir * vec4(1.0, 0.0, 1.0, 0.0)).xyz * bend;
+    vec3 windOffset = (aBladeDir * vec4(1.0, 0.0, 1.0, 0.0)).xyz * bend;
 
-    vec4 worldPos = WindDir * vec4(aPos, 1.0) + vec4(windOffset, 1.0);
+    vec4 worldPos = aBladeDir * vec4(pos, 1.0) + vec4(windOffset, 1.0);
 
-    gl_Position = Transform * worldPos;
+    gl_Position = Proj_View * aTransform * worldPos;
     Normal = aNormal;
 }

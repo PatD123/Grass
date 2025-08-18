@@ -33,10 +33,10 @@ public:
 		const glm::mat4& proj_view,
 		ShaderHelper& sh,
 		GLuint shaderProgram,
-		GLuint VAO,
-		GLuint vertVBO,
-		GLuint normVBO
+		GLuint VAO
 	);
+
+	void animateGrass();
 
 	int m_bladesPerTile;
 	const glm::vec3 m_tilePos;

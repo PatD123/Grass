@@ -17,24 +17,22 @@ const float TILE_MIN_HEIGHT = 0.5f;
 const float TILE_MAX_HEIGHT = 1.0f;
 const float GRASS_MAX_LEAN = 0.8f;
 
-const int NUM_TILES_ROWS = 1;
-const int NUM_TILES_COLS = 2;
-const int BLADES_PER_TILE = 200;
+const int NUM_TILES_ROWS = 5;
+const int NUM_TILES_COLS = 5;
+const int BLADES_PER_TILE = 500;
 
 class World {
 public:
 	World();
 
-	void generateWorld();
-
-	void animateGrass() {};
+	void generateWorld(ShaderHelper& sh, GLuint shaderProgram);
 
 	void renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram);
 
 private:
 
 	// Updates GPU buffers
-	void updateGrassBladeDirGPU() {};
+	void moveTileToGPU(const Tile& t);
 
 	// World attributes
 
@@ -45,7 +43,10 @@ private:
 	// Wind heightmap
 
 	// VBOs and VAOs
-	GLuint grassVAO;
-	GLuint grassVBO;
-	GLuint grassNormVBO;
+	GLuint GrassVAO;				// VAO for everything
+	GLuint GrassVBO;				// VBO that holds base instance pos for blades
+	GLuint GrassNormVBO;			// VBO that holds base instance norm for blades
+	GLuint GrassTransformVBO;		// VBO that holds per-instance transforms (NOT BLADE DIR) for blades
+	GLuint GrassBladeDirVBO;		// VBO that holds per-instance blade directions
+	GLuint GrassBladeScalingVBO;		// VBO that holds per-instance scale transfomrs for blades
 };

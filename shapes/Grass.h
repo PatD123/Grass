@@ -29,13 +29,12 @@ public:
 		const float grassPatchMaxLean
 	);
 
-	void animate();
-
 	glm::vec3 m_localPos;
 	glm::vec3 m_bladeWorldPosition;
-	glm::vec3 m_bladeDir;
-	float m_bladeHeight;
-	float m_bladeLean = 0.2;
+	glm::mat4 m_bladeDir;
+	float m_bladeScaling;
+	float m_bladeHeight = 0.7;
+	float m_bladeLean = 0.3;
 	float m_bladeP0Width = 0.08;
 	float m_bladeP1Width = 0.05;
 	float m_bladeP2Width = 0.0;
