@@ -16,12 +16,15 @@ World::World() {
     int bladeScalingLocation = 10;
 
     glBindVertexArray(GrassVAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, GrassVBO);
     glEnableVertexAttribArray(posLocation);       // aPos
     glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
+
     glBindBuffer(GL_ARRAY_BUFFER, GrassNormVBO);
     glEnableVertexAttribArray(normLocation);       // aNormal
     glVertexAttribPointer(normLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
+
     glBindBuffer(GL_ARRAY_BUFFER, GrassTransformVBO);
     glEnableVertexAttribArray(transformLocation);
     glVertexAttribPointer(transformLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
@@ -86,7 +89,7 @@ void World::renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram) {
 
 void World::moveTileToGPU(const Tile& t) {
     // Move all transforms into the VBO beforehand
-    std::vector<glm::vec3> transforms;
+    /*std::vector<glm::vec3> transforms;
     std::vector<float> bladeDirs;
     std::vector<float> bladeScalings;
     for (const Grass& g : t.m_blades) {
@@ -96,16 +99,16 @@ void World::moveTileToGPU(const Tile& t) {
         transforms.push_back(g.m_bladeWorldPosition);
         bladeDirs.push_back(g.m_bladeDir);
         bladeScalings.push_back(g.m_bladeScaling);
-    }
+    }*/
 
     glBindBuffer(GL_ARRAY_BUFFER, GrassTransformVBO);
-    glBufferData(GL_ARRAY_BUFFER, transforms.size() * sizeof(glm::vec3), transforms.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, t.m_transforms.size() * sizeof(glm::vec3), t.m_transforms.data(), GL_STATIC_DRAW);
 
 
     glBindBuffer(GL_ARRAY_BUFFER, GrassBladeDirVBO);
-    glBufferData(GL_ARRAY_BUFFER, bladeDirs.size() * sizeof(float), bladeDirs.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, t.m_bladeDirs.size() * sizeof(float), t.m_bladeDirs.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, GrassBladeScalingVBO);
-    glBufferData(GL_ARRAY_BUFFER, bladeScalings.size() * sizeof(float), bladeScalings.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, t.m_bladeScalings.size() * sizeof(float), t.m_bladeScalings.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

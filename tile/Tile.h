@@ -49,4 +49,9 @@ public:
 	int m_numBladesDrawn = 0;
 
 	std::vector<Grass> m_blades;
+
+	// For moving to GPU
+	std::vector<glm::vec3> m_transforms;
+	std::vector<float> m_bladeDirs;
+	std::vector<float> m_bladeScalings;
 };
