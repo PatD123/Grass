@@ -15,6 +15,8 @@
 #include "../common/ShaderHelper.h"
 #include "../camera/Camera.h"
 
+static PerlinNoise2D PN;
+
 class Tile {
 public:
 	Tile(

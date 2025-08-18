@@ -15,7 +15,7 @@
 
 const float TILE_MIN_HEIGHT = 0.5f;
 const float TILE_MAX_HEIGHT = 1.5f;
-const float GRASS_MAX_LEAN = 0.8f;
+const float GRASS_MAX_LEAN = 1.3f;
 
 const int NUM_TILES_ROWS = 20;
 const int NUM_TILES_COLS = 20;

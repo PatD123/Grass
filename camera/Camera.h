@@ -12,7 +12,7 @@
 const static float FOV = glm::radians(45.0f);
 const static float ASPECT_RATIO = 800.0f / 600.0f;
 const static float NEAR_PLANE = 0.01f;
-const static float FAR_PLANE = 25.0f;
+const static float FAR_PLANE = 20.0f;
 
 enum Camera_Movement {
 	FORWARD,

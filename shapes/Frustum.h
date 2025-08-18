@@ -22,7 +22,7 @@ public:
 
 private:
 
-	bool checkPlane(const glm::vec3& p, const Plane& plane);
+	bool checkPlane(const glm::vec3& p, const Plane& plane) const;
 
 	const float m_aspectRatio;
 	const float m_fov;

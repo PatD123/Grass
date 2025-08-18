@@ -51,6 +51,11 @@ void World::generateWorld(ShaderHelper& sh, GLuint shaderProgram) {
             glm::vec3 tilePos = glm::vec3(i, 0.0, j);
             Tile t(BLADES_PER_TILE, tilePos, YAXIS, TILE_MIN_HEIGHT, TILE_MAX_HEIGHT, GRASS_MAX_LEAN);
             t.generateGrass();
+
+            t.m_transforms.resize(BLADES_PER_TILE);
+            t.m_bladeDirs.resize(BLADES_PER_TILE);
+            t.m_bladeScalings.resize(BLADES_PER_TILE);
+
             m_tiles.push_back(t);
         }
     }

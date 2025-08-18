@@ -52,7 +52,6 @@ void Tile::renderGrass(
 }
 
 void Tile::animateGrass(const Camera& cam) {
-	PerlinNoise2D pn;
 
 	m_numBladesDrawn = 0;
 
@@ -67,48 +66,44 @@ void Tile::animateGrass(const Camera& cam) {
 		increment = 6;
 	else increment = NUM_BEZIER_VERTS;
 
-	m_bladeScalings.clear();
-	m_bladeDirs.clear();
-	m_transforms.clear();
-
 	for (int i = 0; i < m_bladesPerTile; i += increment) {
 		Grass& g = m_blades[i];
 
 		// SIMD matrix transforms
-		//__m128 results[4];
-		//__m128 x = _mm_load_ps(g.m_x);
-		//__m128 y = _mm_load_ps(g.m_y);
-		//__m128 z = _mm_load_ps(g.m_z);
-		//transformQuad(results, x, y, z, g.m_transform);
+		__m128 results[3];
+		__m128 x = _mm_load_ps(g.m_x);
+		__m128 y = _mm_load_ps(g.m_y);
+		__m128 z = _mm_load_ps(g.m_z);
+		transformQuad(results, x, y, z, g.m_bladeWorldPosition);
 
-		//// Extract out results
-		//float x_result[4], y_result[4], z_result[4];
-		//_mm_store_ps(x_result, results[0]);
-		//_mm_store_ps(y_result, results[1]);
-		//_mm_store_ps(z_result, results[2]);
+		// Extract out results
+		float x_result[4], y_result[4], z_result[4];
+		_mm_store_ps(x_result, results[0]);
+		_mm_store_ps(y_result, results[1]);
+		_mm_store_ps(z_result, results[2]);
 
-		//if (!cam.m_frustum->check(glm::vec3(x_result[0], y_result[0], z_result[0])))
-		//	continue;
-		//if (!cam.m_frustum->check(glm::vec3(x_result[1], y_result[1], z_result[1])))
-		//	continue;
-		//if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2])))
-		//	continue;
-		//if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
-		//	continue;
-
-		m_numBladesDrawn++;
+		if (!cam.m_frustum->check(glm::vec3(x_result[0], y_result[0], z_result[0])))
+			continue;
+		if (!cam.m_frustum->check(glm::vec3(x_result[1], y_result[1], z_result[1])))
+			continue;
+		if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2])))
+			continue;
+		if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
+			continue;
 
 		// Computing direction of grass
-		float rot = pn.eval(
+		float rot = PN.eval(
 			glm::vec2(
 				g.m_bladeWorldPosition.x * 0.4f,
-				g.m_bladeWorldPosition.z * 0.4f + glfwGetTime() * 0.5f
+				g.m_bladeWorldPosition.z * 0.4f + glfwGetTime() * 0.8f
 			)
 		);
 		g.m_bladeDir = (rot + 1.0f) * std::_Pi_val;
 
-		m_transforms.push_back(g.m_bladeWorldPosition);
-		m_bladeScalings.push_back(g.m_bladeScaling);
-		m_bladeDirs.push_back(g.m_bladeDir);
+		m_transforms[m_numBladesDrawn] = g.m_bladeWorldPosition;
+		m_bladeScalings[m_numBladesDrawn] = g.m_bladeScaling;
+		m_bladeDirs[m_numBladesDrawn] = g.m_bladeDir;
+
+		m_numBladesDrawn++;
 	}
 }

@@ -108,7 +108,7 @@ bool Frustum::check(const glm::vec3& model_p) const {
 		
 }
 
-bool Frustum::checkPlane(const glm::vec3& p, const Plane& plane) {
+bool Frustum::checkPlane(const glm::vec3& p, const Plane& plane) const {
 
 	// If the dot product is negative, which means it will point inward into frustum.
 	return glm::dot(p - plane.m_normPos, plane.m_norm) < 0;

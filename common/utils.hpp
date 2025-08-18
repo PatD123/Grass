@@ -39,15 +39,19 @@ static unsigned getSeed() {
     return static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
 }
 
-static void transformQuad(__m128 dest[4], const __m128 x, const __m128 y, const __m128 z, const glm::mat4& transform)
+static void transformQuad(__m128 dest[3], const __m128 x, const __m128 y, const __m128 z, const glm::vec3& translation)
 {
-    for (size_t i = 0; i < 4; ++i) {
+    /*for (size_t i = 0; i < 3; ++i) {
         __m128 res = _mm_broadcast_ss(&transform[3][i]);
         res = _mm_fmadd_ps(_mm_broadcast_ss(&transform[0][i]), x, res);
         res = _mm_fmadd_ps(_mm_broadcast_ss(&transform[1][i]), y, res);
         res = _mm_fmadd_ps(_mm_broadcast_ss(&transform[2][i]), z, res);
         dest[i] = res;
-    }
+    }*/
+
+    dest[0] = _mm_add_ps(_mm_broadcast_ss(&translation.x), x);
+    dest[1] = _mm_add_ps(_mm_broadcast_ss(&translation.y), y);
+    dest[2] = _mm_add_ps(_mm_broadcast_ss(&translation.z), z);
 }
 
 static void makePersistentLength(glm::vec3& v0, glm::vec3& v1, glm::vec3& v2, float height)
