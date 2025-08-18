@@ -36,7 +36,7 @@ public:
 		GLuint VAO
 	);
 
-	void animateGrass();
+	void animateGrass(const Camera& cam);
 
 	int m_bladesPerTile;
 	const glm::vec3 m_tilePos;
@@ -44,6 +44,9 @@ public:
 	float m_tileMinHeight;
 	float m_tileMaxHeight;
 	float m_tileMaxLean;
+
+	// Number of blades drawn per frame, after culling.
+	int m_numBladesDrawn = 0;
 
 	std::vector<Grass> m_blades;
 };

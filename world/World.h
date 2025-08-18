@@ -14,12 +14,12 @@
 #include "../common/ShaderHelper.h"
 
 const float TILE_MIN_HEIGHT = 0.5f;
-const float TILE_MAX_HEIGHT = 1.0f;
+const float TILE_MAX_HEIGHT = 1.5f;
 const float GRASS_MAX_LEAN = 0.8f;
 
-const int NUM_TILES_ROWS = 5;
-const int NUM_TILES_COLS = 5;
-const int BLADES_PER_TILE = 500;
+const int NUM_TILES_ROWS = 10;
+const int NUM_TILES_COLS = 10;
+const int BLADES_PER_TILE = 200;
 
 class World {
 public:

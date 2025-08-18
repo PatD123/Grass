@@ -72,7 +72,7 @@ void World::renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram) {
 
     for (Tile& t : m_tiles) {
 
-        t.animateGrass();
+        t.animateGrass(cam);
 
         moveTileToGPU(t);
 
@@ -92,6 +92,9 @@ void World::moveTileToGPU(const Tile& t) {
     std::vector<glm::mat4> bladeDirs;
     std::vector<float> bladeScalings;
     for (const Grass& g : t.m_blades) {
+
+        if (g.m_culled) continue;
+
         transforms.push_back(g.m_transform);
         bladeDirs.push_back(g.m_bladeDir);
         bladeScalings.push_back(g.m_bladeScaling);

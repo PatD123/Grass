@@ -13,8 +13,6 @@ Tile::Tile(
 {}
 
 void Tile::generateGrass() {
-	
-
 	for (int i = 0; i < m_bladesPerTile; ++i) {
 		Grass g;
 		g.generateBlade(m_tilePos, m_tileNorm, m_tileMinHeight, m_tileMaxHeight, m_tileMaxLean);
@@ -47,68 +45,68 @@ void Tile::renderGrass(
 
 	// Draw
 	sh.useShaderProgram(shaderProgram);
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 84, m_blades.size());
-
-	//for (int i = 0; i<m_bladesPerTile; i+=increment)
-	//{
-	//	Grass& g = m_blades[i];
-
-	//	// SIMD matrix transforms
-	//	__m128 results[4];
-	//	__m128 x = _mm_load_ps(g.m_x);
-	//	__m128 y = _mm_load_ps(g.m_y);
-	//	__m128 z = _mm_load_ps(g.m_z);
-	//	transformQuad(results, x, y, z, g.m_transform);
-
-	//	// Extract out results
-	//	float x_result[4], y_result[4], z_result[4];
-	//	_mm_store_ps(x_result, results[0]);
-	//	_mm_store_ps(y_result, results[1]);
-	//	_mm_store_ps(z_result, results[2]);
-
-	//	if (!cam.m_frustum->check(glm::vec3(x_result[0], y_result[0], z_result[0])))
-	//		continue;
-	//	if (!cam.m_frustum->check(glm::vec3(x_result[1], y_result[1], z_result[1])))
-	//		continue;
-	//	if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2])))
-	//		continue;
-	//	if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
-	//		continue;
-
-	//	//g.animate();
-
-	//	PerlinNoise2D pn;
-
-	//	// Computing direction of grass
-	//	float rot = pn.eval(
-	//		glm::vec2(
-	//			g.m_bladeWorldPosition.x * 0.4f,
-	//			g.m_bladeWorldPosition.z * 0.4f + glfwGetTime() * 0.5f
-	//		)
-	//	);
-	//	rot = (rot + 1.0f) * std::_Pi_val;
-	//	glm::mat4 windDir = glm::rotate(glm::mat4(), rot, YAXIS);
-
-	//	glm::mat4 transform = proj_view * g.m_transform;
-	//	sh.setUniformMat4fv(shaderProgram, "Transform", glm::value_ptr(transform));
-	//	sh.setUniformMat4fv(shaderProgram, "WindDir", glm::value_ptr(windDir));
-	//	sh.setUniform1f(shaderProgram, "Time", glfwGetTime());
-
-	//	// Draw
-	//	sh.useShaderProgram(shaderProgram);
-	//	glDrawArrays(GL_TRIANGLES, 0, g.m_vertices.size());
-	//}
+	glDrawArraysInstanced(GL_TRIANGLES, 0, 84, m_numBladesDrawn);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Tile::animateGrass() {
+void Tile::animateGrass(const Camera& cam) {
 	PerlinNoise2D pn;
 
+	m_numBladesDrawn = 0;
+
+	// LODing
 	int increment = 1;
-	for (int i = 0; i < m_bladesPerTile; i += increment) {
+	float dis = glm::length(cam.m_pos - m_tilePos);
+	if (dis < 7.0f)
+		increment = 1;
+	else if (7.0f <= dis && dis <= 10.f)
+		increment = 3;
+	else if (10.0f < dis <= 15)
+		increment = 6;
+	else increment = NUM_BEZIER_VERTS;
+
+	for (int i = 0; i < m_bladesPerTile; ++i) {
 		Grass& g = m_blades[i];
+
+		if (i % increment != 0) {
+			g.m_culled = true;
+			continue;
+		}
+
+		// SIMD matrix transforms
+		__m128 results[4];
+		__m128 x = _mm_load_ps(g.m_x);
+		__m128 y = _mm_load_ps(g.m_y);
+		__m128 z = _mm_load_ps(g.m_z);
+		transformQuad(results, x, y, z, g.m_transform);
+
+		// Extract out results
+		float x_result[4], y_result[4], z_result[4];
+		_mm_store_ps(x_result, results[0]);
+		_mm_store_ps(y_result, results[1]);
+		_mm_store_ps(z_result, results[2]);
+
+		if (!cam.m_frustum->check(glm::vec3(x_result[0], y_result[0], z_result[0]))) {
+			g.m_culled = true;
+			continue;
+		}
+		if (!cam.m_frustum->check(glm::vec3(x_result[1], y_result[1], z_result[1]))) {
+			g.m_culled = true;
+			continue;
+		}
+		if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2]))) {
+			g.m_culled = true;
+			continue;
+		}
+		if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3]))) {
+			g.m_culled = true;
+			continue;
+		}
+
+		g.m_culled = false;
+		m_numBladesDrawn++;
 
 		// Computing direction of grass
 		float rot = pn.eval(
@@ -120,6 +118,4 @@ void Tile::animateGrass() {
 		rot = (rot + 1.0f) * std::_Pi_val;
 		g.m_bladeDir = glm::rotate(glm::mat4(), rot, YAXIS);
 	}
-
-	
 }

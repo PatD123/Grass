@@ -38,6 +38,7 @@ public:
 	float m_bladeP0Width = 0.08;
 	float m_bladeP1Width = 0.05;
 	float m_bladeP2Width = 0.0;
+	bool  m_culled = false;
 
 	std::vector<float> m_tSeq;
 	std::pair<glm::vec3, glm::vec3> m_negBezier[NUM_BEZIER_VERTS];
