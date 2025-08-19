@@ -35,6 +35,7 @@ public:
 		const glm::mat4& proj_view,
 		ShaderHelper& sh,
 		GLuint shaderProgram,
+		GLuint lightShaderProgram,
 		GLuint VAO
 	);
 

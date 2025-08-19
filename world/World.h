@@ -17,8 +17,8 @@ const float TILE_MIN_HEIGHT = 0.5f;
 const float TILE_MAX_HEIGHT = 1.5f;
 const float GRASS_MAX_LEAN = 1.3f;
 
-const int NUM_TILES_ROWS = 20;
-const int NUM_TILES_COLS = 20;
+const int NUM_TILES_ROWS = 40;
+const int NUM_TILES_COLS = 40;
 const int BLADES_PER_TILE = 200;
 
 class World {
@@ -27,7 +27,7 @@ public:
 
 	void generateWorld(ShaderHelper& sh, GLuint shaderProgram);
 
-	void renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram);
+	void renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram, GLuint lightShaderProgram);
 
 private:
 

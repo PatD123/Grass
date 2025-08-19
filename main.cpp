@@ -13,6 +13,7 @@
 #include "common/ShaderHelper.h"
 #include "camera/Camera.h"
 #include "world/World.h"
+#include "light/Light.h"
 
 // Timing
 float PROGRAM_START_TIME = glfwGetTime();
@@ -65,6 +66,7 @@ int main()
     // Compile and link shaders
     ShaderHelper sh;
     GLuint shaderProgram = sh.compileShaders("shaders/VertexShader.glsl", "shaders/FragmentShader.glsl");
+    GLuint lightShaderProgram = sh.compileShaders("shaders/LightCubeVertexShader.glsl", "shaders/LightCubeFragmentShader.glsl");
 
     // Enable z-buffer depth testing
     glEnable(GL_DEPTH_TEST);
@@ -78,6 +80,19 @@ int main()
 
     World world;
     world.generateWorld(sh, shaderProgram);
+
+    // Light source
+    glm::vec3 lightPos = glm::vec3(5.0f, 5.0f, 20.0f);
+    glm::vec3 lightColor = glm::vec3(1, 0.984, 0);
+    Light sun(glm::translate(glm::mat4(), lightPos), lightColor);
+    sh.setUniformMat4fv(
+        lightShaderProgram,
+        "transform",
+        glm::value_ptr(glm::translate(glm::mat4(), lightPos))
+    );
+
+    sh.setUniform3fv(shaderProgram, "lightPosition", glm::value_ptr(lightPos));
+    sh.setUniform3fv(shaderProgram, "lightColor", glm::value_ptr(lightColor));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -118,10 +133,17 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        sh.useShaderProgram(lightShaderProgram);
+        sun.draw();
+
+        sh.setUniform3fv(shaderProgram, "camPos", glm::value_ptr(cam.m_pos));
+        sh.setUniform3fv(shaderProgram, "camDir", glm::value_ptr(cam.m_front));
+
         world.renderGrass(
             cam,
             sh,
-            shaderProgram
+            shaderProgram,
+            lightShaderProgram
         );
         
 

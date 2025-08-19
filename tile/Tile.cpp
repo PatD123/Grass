@@ -25,6 +25,7 @@ void Tile::renderGrass(
 	const glm::mat4& proj_view,
 	ShaderHelper& sh, 
 	GLuint shaderProgram,
+	GLuint lightShaderProgram,
 	GLuint VAO
 ) {
 	glBindVertexArray(VAO);
@@ -39,6 +40,9 @@ void Tile::renderGrass(
 	else if (10.0f < dis <= 15)
 		increment = 6;
 	else increment = NUM_BEZIER_VERTS;
+
+	sh.setUniformMat4fv(lightShaderProgram, "model", glm::value_ptr(glm::mat4()));
+	sh.setUniformMat4fv(lightShaderProgram, "proj_view", glm::value_ptr(proj_view));
 
 	sh.setUniformMat4fv(shaderProgram, "Proj_View", glm::value_ptr(proj_view));
 	sh.setUniform1f(shaderProgram, "Time", glfwGetTime());

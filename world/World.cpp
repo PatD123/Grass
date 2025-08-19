@@ -70,7 +70,7 @@ void World::generateWorld(ShaderHelper& sh, GLuint shaderProgram) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void World::renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram) {
+void World::renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram, GLuint lightShaderProgram) {
 
     glm::mat4 view = cam.getViewMat();
     glm::mat4 proj = glm::perspective(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
@@ -87,6 +87,7 @@ void World::renderGrass(Camera& cam, ShaderHelper& sh, GLuint shaderProgram) {
             proj_view,
             sh,
             shaderProgram,
+            lightShaderProgram,
             GrassVAO
         );
     }

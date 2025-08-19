@@ -7,6 +7,7 @@ layout(location = 6) in float aBladeDir;
 layout(location = 10) in float aBladeScaling;
 
 out vec3 Normal;
+out vec3 FragPos;
 out float RelativeHeight;
 
 uniform mat4 Proj_View;
@@ -47,6 +48,7 @@ void main()
     vec4 worldPos = bladeDir * vec4(pos, 1.0) + vec4(windOffset, 1.0);
 
     gl_Position = Proj_View * transform * worldPos;
+    FragPos = vec3(transform * worldPos);
     Normal = aNormal;
 }
 
