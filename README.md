@@ -13,6 +13,11 @@ Grass Simulation in OpenGL
 
 ## The journey
 
+Lighting
+
+https://github.com/user-attachments/assets/676f39be-68da-439a-a61e-ee3db50dd8cb
+
+
 Absolutely squeezed perf out of SIMD; Info from VS Profiler
 
 
