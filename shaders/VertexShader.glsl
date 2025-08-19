@@ -30,14 +30,16 @@ void main()
     mat4 transform = translationMatrix(aTransform);
     mat4 bladeDir = rotationY(aBladeDir);
 
+    vec4 pos_1 = transform * vec4(pos, 1.0);
+
     // Allows us to "hash" per vertex
 
     RelativeHeight = pos.y / bladeHeight;
 
     // The taller it is, the more we lean.
 
-    float windNoiseSample = snoise(vec2(pos.xz * 0.8 + Time * 0.05));
-    float windLeanAngle = remap(windNoiseSample, -1.0, 1.0, 0.25, 0.40);
+    float windNoiseSample = snoise(vec2(pos_1.xz * 0.8 + Time * 0.3));
+    float windLeanAngle = remap(windNoiseSample, 0, 1.0, 0.10, 0.50);
     windLeanAngle = easeIn(windLeanAngle, 2.0) * 1.25;
     float bend = RelativeHeight * windLeanAngle;
 
