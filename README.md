@@ -1,5 +1,10 @@
 Grass Simulation in OpenGL
 
+Mysterious            |  Good Day
+:-------------------------:|:-------------------------:
+![Screenshot 2025-08-20 001033](https://github.com/user-attachments/assets/cbe9105c-2a32-4181-8fcc-e179bd916012) | ![Screenshot 2025-08-20 001906](https://github.com/user-attachments/assets/aabdd3d0-a816-47d0-a366-8b2b9862d58e)
+
+
 ## TODO
 - [X] MORE Parallelizable MORE Vectorizable!!!!.
 - 🤯 Learned to use AVX Intel Intrinsics.
@@ -12,6 +17,8 @@ Grass Simulation in OpenGL
 - :question: Aesthetically, unpleasant.
 
 ## The journey
+
+
 
 Lighting
 
