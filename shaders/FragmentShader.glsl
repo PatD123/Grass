@@ -25,7 +25,7 @@ void main()
 
 	// Ambient
 
-    float ambientStrength = 0.15;
+    float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * lightColor;
 
     // Diffuse
@@ -37,13 +37,15 @@ void main()
 
     // Specular
 
-    float specularStrength = 0.9;
+    float specularStrength = 0.4;
     vec3 viewDir = normalize(camPos - FragPos); // From frag to cam
     vec3 reflectDir = reflect(-lightDir, norm);  // Across norm, pointing away from frag.
-    float spec = pow(max(dot(viewDir, reflectDir) * 1.005, 0.0), 16);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
     vec3 specular = specularStrength * spec * lightColor;
 
-    FragColor = vec4(Color * (ambient + diffuse + specular), 1.0);
+    vec3 lighting = ambient + diffuse;
+    vec3 result = Color * lighting + specular; // tint diffuse only
+    FragColor = vec4(result, 1.0);
 
     // FragColor = vec4(Color, 1.0);
 

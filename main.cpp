@@ -82,8 +82,9 @@ int main()
     world.generateWorld(sh, shaderProgram);
 
     // Light source
-    glm::vec3 lightPos = glm::vec3(5.0f, 5.0f, 20.0f);
-    glm::vec3 lightColor = glm::vec3(1, 0.984, 0);
+    glm::vec3 lightPos = glm::vec3(10.0f, 5.0f, 25.0f);
+    //glm::vec3 lightColor = rgbToNormRGB(46.0f, 128.0f, 141.0f);
+    glm::vec3 lightColor = glm::vec3(1.0f, 0.0f, 0.0f);
     Light sun(glm::translate(glm::mat4(), lightPos), lightColor);
     sh.setUniformMat4fv(
         lightShaderProgram,

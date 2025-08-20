@@ -39,19 +39,20 @@ void main()
     // The taller it is, the more we lean.
 
     float windNoiseSample = snoise(vec2(pos_1.xz * 0.8 + Time * 0.3));
-    float windLeanAngle = remap(windNoiseSample, 0, 1.0, 0.10, 0.50);
-    windLeanAngle = easeIn(windLeanAngle, 2.0) * 1.25;
+    float windLeanAngle = remap(windNoiseSample, -1.0, 1.0, 0.10, 0.50);
+    windLeanAngle = easeIn(windLeanAngle, 5.0) * 1.25;
     float bend = RelativeHeight * windLeanAngle;
 
     // Transform position: only offset x/z, not y
 
     vec3 windOffset = (bladeDir * vec4(1.0, 0.0, 1.0, 0.0)).xyz * bend;
 
-    vec4 worldPos = bladeDir * vec4(pos, 1.0) + vec4(windOffset, 1.0);
+    vec4 worldPos = bladeDir * vec4(pos, 1.0);
 
     gl_Position = Proj_View * transform * worldPos;
     FragPos = vec3(transform * worldPos);
-    Normal = aNormal;
+    Normal = mat3(transpose(inverse(transform * bladeDir))) * aNormal;
+    RelativeHeight = bend;
 }
 
 mat4 translationMatrix(vec3 t) {

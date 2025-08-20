@@ -72,3 +72,7 @@ static void makePersistentLength(glm::vec3& v0, glm::vec3& v1, glm::vec3& v2, fl
     v1 = v0 + v01;
     v2 = v1 + v12;
 }
+
+static glm::vec3 rgbToNormRGB(float r, float g, float b) {
+    return glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
+}

@@ -90,10 +90,10 @@ void Tile::animateGrass(const Camera& cam) {
 			continue;
 		if (!cam.m_frustum->check(glm::vec3(x_result[1], y_result[1], z_result[1])))
 			continue;
-		if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2])))
+		/*if (!cam.m_frustum->check(glm::vec3(x_result[2], y_result[2], z_result[2])))
 			continue;
 		if (!cam.m_frustum->check(glm::vec3(x_result[3], y_result[3], z_result[3])))
-			continue;
+			continue;*/
 
 		// Computing direction of grass
 		float rot = PN.eval(

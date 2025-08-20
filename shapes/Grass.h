@@ -34,7 +34,7 @@ public:
 	float m_bladeDir; // Radians for which direction the wind is blowing.
 	float m_bladeScaling;
 	float m_bladeHeight = 0.7;
-	float m_bladeLean = 0.3;
+	float m_bladeLean = 1.1;
 	float m_bladeP0Width = 0.08;
 	float m_bladeP1Width = 0.05;
 	float m_bladeP2Width = 0.0;
