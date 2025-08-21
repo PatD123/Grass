@@ -4,6 +4,21 @@ Mysterious            |  Good Day
 :-------------------------:|:-------------------------:
 ![Screenshot 2025-08-20 001033](https://github.com/user-attachments/assets/cbe9105c-2a32-4181-8fcc-e179bd916012) | ![Screenshot 2025-08-20 001906](https://github.com/user-attachments/assets/aabdd3d0-a816-47d0-a366-8b2b9862d58e)
 
+## Appearance
+Grass blades are constructed from 2 Bezier Curves. Blades currently have a base form, which includes characteristics like lean and height, then they are instanced to the GPU, where some amount of noise is calculated in the Vertex Shader to alter the appearance of the instanced grass blade. In addition to this, I use Perlin Noise on the CPU side to generate rotation noise to makes each of the blades rotate around its root to give it a general smooth windy appearance (*Tile.cpp*). Instanced transforms and rotations would be sent to the GPU as Vec3, from which Mat4 would be derived on the GPU to increase memory efficiency. Uniforms like height and lightColor were used to paint a more realistic color. Fragment Shader does fragment shader things to make the grass seem believable.
+
+## Optimization Techniques
+### LODing
+I did sorta basic LOD-ing. According to several talks regarding the subject of Grass Sims (more specifically Ghost of Tsushima), I think they LOD-ed by decreaseing the number of verts per blade. Instead, I simplified it to lessening blades of grass per tile with distance. I decided first which grass blades I wanted to LOD out, and then for the ones I wanted to keep into the frame of view, I would then animate those blades (Perlin Noise for rotation).
+
+### Frustum Culling
+Culling I found to be very important as it get's rid of and prevents the render of lots of blades. My frustum was built out of a near, far, top, bottom, right and left planes (point + normal). After LODing, I would check whether or not the blade that passed my LODing test would be culled out or not. If it wasn't culled out, I would proceed to Perlin Noise generation. In terms of my AABB, I chose not use a 3D bounding box or sphere, but rather a 2D quad extending from the root of the blade to the 3rd and 4th to last points along the Bezier Curve. My thought process would be that AABB would have too much empty space as blades are quite thin, and less points to check.
+
+### SIMD
+In order to speed up the checking of the 2D quad in culling, I used SIMD to parallelize the process of checking whether or not a point was outside the frustum. To check if a point is outside the frustum, we basically dot prod the normal of each frustum face with the vector from the base of the normal to the point. In my test, if this is positive (same direction), then it is outside the frustum. Because these operations can be represented by a lot of fmadds, subs, and broadcasts, I chose to use SIMD to increase throughput.
+
+
+
 
 ## TODO
 - [X] MORE Parallelizable MORE Vectorizable!!!!.
